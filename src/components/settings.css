@@ -1,0 +1,26 @@
+summary {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 5px;
+  cursor: pointer;
+}
+summary * {
+  user-select: none !important;
+}
+
+summary:before {
+  color: var(--text-normal);
+  content: "►";
+}
+details[open] summary:before {
+  content: "▼";
+}
+
+details > *:not(:last-child) {
+  margin-bottom: 2vh;
+}
+
+.option-plus-wrapper {
+  margin-top: 2vh;  
+}

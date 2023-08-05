@@ -1,18 +1,19 @@
 {
-  "id": "dev.replugged.PluginTemplate",
-  "name": "Plugin Template",
-  "description": "A plugin template",
+  "id": "eu.shadygoat.Cutecord",
+  "name": "Cutecord",
+  "description": "Bypass do not disturb based on your filters",
   "author": {
-    "name": "replugged",
-    "discordID": "1000992611840049192",
-    "github": "replugged-org"
+    "name": "Lucy Dryaeva",
+    "discordID": "376079696489742338",
+    "github": "ShadiestGoat"
   },
   "version": "1.0.0",
   "updater": {
     "type": "github",
-    "id": "replugged-org/plugin-template"
+    "id": "ShadiestGoat/ReCutecord"
   },
   "license": "MIT",
   "type": "replugged-plugin",
-  "renderer": "src/index.ts"
+  "renderer": "src/index.ts",
+  "plaintextPatches": "src/patches.ts"
 }

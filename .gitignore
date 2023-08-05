@@ -104,3 +104,6 @@ dist
 .tern-port
 
 /bundle
+
+# Powercord version used for ref
+cutecord

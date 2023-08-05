@@ -1,26 +1,32 @@
-import { Injector, Logger, webpack } from "replugged";
+import { Injector, Logger } from "replugged";
+import type { message } from "./types";
 
-const inject = new Injector();
-const logger = Logger.plugin("PluginTemplate");
+const injector = new Injector();
+const logger = Logger.plugin("Cutecord");
 
-export async function start(): Promise<void> {
-  const typingMod = await webpack.waitForModule<{
-    startTyping: (channelId: string) => void;
-  }>(webpack.filters.byProps("startTyping"));
-  const getChannelMod = await webpack.waitForModule<{
-    getChannel: (id: string) => {
-      name: string;
-    };
-  }>(webpack.filters.byProps("getChannel"));
-
-  if (typingMod && getChannelMod) {
-    inject.instead(typingMod, "startTyping", ([channel]) => {
-      const channelObj = getChannelMod.getChannel(channel);
-      logger.log(`Typing prevented! Channel: #${channelObj?.name ?? "unknown"} (${channel}).`);
-    });
-  }
+export function start(): void  {
+  logger.log("Started!! <3")
 }
 
 export function stop(): void {
-  inject.uninjectAll();
+  injector.uninjectAll();
 }
+
+export function shouldNotNotify(e: {message: message}): boolean {
+  const msg = e.message
+  
+  // 1. check if user status is dnd, if its not, always return false
+  // 2. fitlers:
+  /*
+    - cuties
+    - phrases
+    - channels
+    - guilds
+
+    + negative lists for each
+  */
+
+  return true
+}
+
+export { Settings } from "./components/settings"
