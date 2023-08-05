@@ -1,3 +1,5 @@
+import { common } from "replugged"
+const { Store } = common.flux
 /* eslint-disable @typescript-eslint/naming-convention */
 
 interface baseUser {
@@ -27,6 +29,7 @@ interface messageBase {
   mention_everyone: boolean,
   // TODO: mention_roles type
   mention_roles: [],
+  guild_id?: string,
   // TODO: type
   mentions: [],
 }
@@ -38,4 +41,10 @@ export type refMessage = messageBase & {
 export type message = messageBase & {
   author: msgAuthor,
   referenced_message?: refMessage,
+}
+
+export type guildStore = typeof Store & {
+  isMuted(guildID: string): boolean,
+  isChannelMuted(guildID: string, chanID: string): boolean,
+  isCategoryMuted(guildID: string, chanID: string): boolean,
 }

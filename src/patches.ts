@@ -4,8 +4,8 @@ export default [
     find: /\.getTextChatNotificationMode.+?\.disableNotifications/,
     replacements: [
       {
-        match: /null!=d.getFocusedPID().+?disableNotifications/,
-        replace: `replugged.plugins.plugins.get("eu.shadygoat.Cutecord").exports.shouldNotNotify(arguments[0])`
+        match: /\.isBroadcastChannel\(\)\)return!1.+?disableNotifications\)/s,
+        replace: `.isBroadcastChannel() || replugged.plugins.plugins.get("eu.shadygoat.cutecord").exports.shouldNotNotify(arguments[0]))`
       }
     ]
   }

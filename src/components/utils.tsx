@@ -1,4 +1,4 @@
-import { components, util, common } from "replugged"
+import { common, components, util } from "replugged"
 import { SettingsArray, SettingsString, cfg } from "./common"
 const { useState } = common.React
 const { TextInput, Text, Button, ButtonItem, Flex, FormItem } = components

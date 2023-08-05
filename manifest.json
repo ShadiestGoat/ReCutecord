@@ -1,5 +1,5 @@
 {
-  "id": "eu.shadygoat.Cutecord",
+  "id": "eu.shadygoat.cutecord",
   "name": "Cutecord",
   "description": "Bypass do not disturb based on your filters",
   "author": {
@@ -15,5 +15,6 @@
   "license": "MIT",
   "type": "replugged-plugin",
   "renderer": "src/index.ts",
-  "plaintextPatches": "src/patches.ts"
+  "plaintextPatches": "src/patches.ts",
+  "reloadRequired": true
 }

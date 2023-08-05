@@ -1,7 +1,10 @@
 import { settings, } from "replugged";
 
 export interface Settings extends SettingsString, SettingsArray {
-  
+  respectMutedChannels: boolean,
+  respectMutedCategories: boolean,
+  respectMutedGuilds: boolean,
+  notifyIfFocused: boolean,
 }
 
 export interface SettingsString {
@@ -18,7 +21,7 @@ export interface SettingsArray {
   badPhrases?: string[],
 }
 
-const defaultSettings = {
+export const defaultSettings = {
   cuties:      "",
   meanies:     "",
   phrases:     [],
@@ -27,6 +30,10 @@ const defaultSettings = {
   badChannels: "",
   guilds:      "",
   badGuilds:   "",
+  respectMutedChannels: true,
+  respectMutedCategories: true,
+  respectMutedGuilds:   true,
+  notifyIfFocused:      false,
 } satisfies Settings;
 
 export const cfg = await settings.init<Settings, keyof typeof defaultSettings>("eu.shadygoat.Cutecord", defaultSettings);
