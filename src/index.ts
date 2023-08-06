@@ -1,14 +1,14 @@
 import { Injector, Logger, webpack, common } from "replugged";
 import type { guildStore, message } from "./types";
 import { Settings, cfg, defaultSettings } from "./components/common";
-const { getByStoreName } = webpack;
-
+import { byProps } from "replugged/dist/renderer/modules/webpack/filters";
+const { getByStoreName, getModule } = webpack;
 
 const injector = new Injector();
 const logger = Logger.plugin("Cutecord");
 
-export function start(): void  {
-  logger.log("Started!! <3")
+export function start(): void {
+  logger.log("Started!! <3");
 }
 
 export function stop(): void {
@@ -16,118 +16,129 @@ export function stop(): void {
 }
 
 function phraseIncludes(phraseBank: string[], content: string): boolean {
-  content = content.toLowerCase()
+  content = content.toLowerCase();
 
   for (const v of phraseBank) {
     if (content.includes(v.toLowerCase())) {
-      return true
+      return true;
     }
   }
 
-  return false
+  return false;
 }
 
 function bsArrayInclude(v: string, conf?: string): boolean {
-  return (conf?.split(" ") ?? []).includes(v)
+  return (conf?.split(" ") ?? []).includes(v);
 }
 
 const isBadChecks: Array<(msg: message, conf: Settings) => boolean> = [
   (msg, conf) => {
     // phrase check
-    return phraseIncludes(conf.badPhrases ?? [], msg.content)
+    return phraseIncludes(conf.badPhrases ?? [], msg.content);
   },
   (msg, conf) => {
     if (!msg.guild_id) {
-      return false
+      return false;
     }
-    return bsArrayInclude(msg.guild_id, conf.badGuilds)
+    return bsArrayInclude(msg.guild_id, conf.badGuilds);
   },
   (msg, conf) => bsArrayInclude(msg.author.id, conf.meanies),
   (msg, conf) => {
     if (bsArrayInclude(msg.channel_id, conf.channels)) {
-      return true
+      return true;
     }
     if (msg.guild_id) {
-      const chan = common.channels.getBasicChannel(msg.channel_id)
+      const chan = common.channels.getBasicChannel(msg.channel_id);
       if (!chan) {
-        return false
+        return false;
       }
       if (chan.parent_id) {
-        return bsArrayInclude(chan.parent_id, conf.channels)
+        return bsArrayInclude(chan.parent_id, conf.channels);
       }
     }
 
-    return false
-  }
-]
+    return false;
+  },
+];
 
 const isGoodChecks: Array<(msg: message, conf: Settings) => boolean> = [
   (msg, conf) => {
     // phrase check
-    return phraseIncludes(conf.phrases ?? [], msg.content)
+    return phraseIncludes(conf.phrases ?? [], msg.content);
   },
   (msg, conf) => {
     if (!msg.guild_id) {
-      return false
+      return false;
     }
-    return bsArrayInclude(msg.guild_id, conf.guilds)
+    return bsArrayInclude(msg.guild_id, conf.guilds);
   },
   (msg, conf) => bsArrayInclude(msg.author.id, conf.cuties),
   (msg, conf) => {
     if (bsArrayInclude(msg.channel_id, conf.channels)) {
-      return true
+      return true;
     }
     if (msg.guild_id) {
-      const chan = common.channels.getBasicChannel(msg.channel_id)
+      const chan = common.channels.getBasicChannel(msg.channel_id);
       if (!chan) {
-        return false
+        return false;
       }
       if (chan.parent_id) {
-        return bsArrayInclude(chan.parent_id, conf.channels)
+        return bsArrayInclude(chan.parent_id, conf.channels);
       }
     }
 
-    return false
-  }
-]
+    return false;
+  },
+];
 
-export function shouldNotNotify(e: {message: message}): boolean {
-  const msg = e.message
+export function shouldNotNotify(e: { message: message }): boolean {
+  const msg = e.message;
   if (msg.author.id == common.users.getCurrentUser().id) {
-    return true
+    return true;
   }
-  const conf = cfg.all()
-  
-  if (!(conf.notifyIfFocused ?? defaultSettings.notifyIfFocused) && common.channels.getCurrentlySelectedChannelId() == msg.channel_id) {
-    return true
+  const conf = cfg.all();
+
+  if (
+    !(conf.notifyIfFocused ?? defaultSettings.notifyIfFocused) &&
+    common.channels.getCurrentlySelectedChannelId() == msg.channel_id
+  ) {
+    return true;
   }
-  
-  const tmpStore = getByStoreName("UserGuildSettingsStore")
+
+  const tmpStore = getByStoreName("UserGuildSettingsStore");
   // to make the editor happy <3
   if (!tmpStore) {
-    return true
+    return true;
   }
 
-  const store = tmpStore as unknown as guildStore
+  const store = tmpStore as unknown as guildStore;
 
   if (msg.guild_id && conf.respectMutedGuilds && store.isMuted(msg.guild_id)) {
-    return true
+    return true;
   }
-  if (msg.guild_id && conf.respectMutedCategories && store.isCategoryMuted(msg.guild_id, msg.channel_id)) {
-    return true
+  if (
+    msg.guild_id &&
+    conf.respectMutedCategories &&
+    store.isCategoryMuted(msg.guild_id, msg.channel_id)
+  ) {
+    return true;
   }
   if (conf.respectMutedChannels) {
-    let gID = null 
+    let gID = null;
     if (msg.guild_id) {
-      gID = msg.guild_id
+      gID = msg.guild_id;
     }
     if (store.isChannelMuted(gID, msg.channel_id)) {
-      return true
+      return true;
     }
   }
 
-  if (msg.guild_id && conf.respectMutedCategories && store.isCategoryMuted(msg.guild_id, msg.channel_id)) {
-    return true
+  if (
+    msg.guild_id &&
+    conf.respectMutedCategories &&
+    store.isCategoryMuted(msg.guild_id, msg.channel_id)
+  ) {
+    return true;
   }
 
   // notifyIfFocused
@@ -135,17 +146,24 @@ export function shouldNotNotify(e: {message: message}): boolean {
 
   for (const f of isBadChecks) {
     if (f(msg, conf)) {
-      return true
+      return true;
     }
+  }
+
+  // @ts-expect-error bc no types :(
+  const status = (getModule(byProps("getStatus", "getActivities"))!).getStatus() as string
+
+  if (status != "dnd") {
+    return false
   }
 
   for (const f of isGoodChecks) {
     if (f(msg, conf)) {
-      return false
+      return false;
     }
   }
 
-  return true
+  return true;
 }
 
-export { Settings } from "./components/settings"
+export { Settings } from "./components/settings";
