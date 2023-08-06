@@ -2,23 +2,23 @@ import { common } from "replugged";
 const { Store } = common.flux;
 /* eslint-disable @typescript-eslint/naming-convention */
 
-interface baseUser {
+interface BaseUser {
   username: string;
   id: string;
   avatar: string;
 }
 
-export type msgAuthor = baseUser & {
+export type MsgAuthor = BaseUser & {
   publicFlags: string;
   globalName: string;
 };
 
-export type refMsgAuthor = baseUser & {
+export type RefMsgAuthor = BaseUser & {
   global_name: string;
   public_flags: string;
 };
 
-interface messageBase {
+interface MessageBase {
   id: string;
 
   attachments: string[];
@@ -34,16 +34,16 @@ interface messageBase {
   mentions: [];
 }
 
-export type refMessage = messageBase & {
-  author: refMsgAuthor;
+export type RefMessage = MessageBase & {
+  author: RefMsgAuthor;
 };
 
-export type message = messageBase & {
-  author: msgAuthor;
-  referenced_message?: refMessage;
+export type Message = MessageBase & {
+  author: MsgAuthor;
+  referenced_message?: RefMessage;
 };
 
-export type guildStore = typeof Store & {
+export type GuildStore = typeof Store & {
   isMuted(guildID: string): boolean;
   isChannelMuted(guildID: string | null, chanID: string): boolean;
   isCategoryMuted(guildID: string, chanID: string): boolean;

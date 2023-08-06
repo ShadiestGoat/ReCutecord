@@ -1,5 +1,5 @@
 import { Injector, Logger, common, webpack } from "replugged";
-import type { guildStore, message } from "./types";
+import type { GuildStore, Message } from "./types";
 import { cfg } from "./components/common";
 const { getByStoreName, getByProps } = webpack;
 
@@ -26,7 +26,7 @@ function phraseIncludes(phraseBank: string[], content: string): boolean {
   return false;
 }
 
-function checkFactory(prefix: "good" | "bad"): Array<(msg: message) => boolean> {
+function checkFactory(prefix: "good" | "bad"): Array<(msg: Message) => boolean> {
   return [
     // phrase check
     (msg) => {
@@ -64,7 +64,7 @@ function checkFactory(prefix: "good" | "bad"): Array<(msg: message) => boolean> 
 const isBadChecks = checkFactory("bad");
 const isGoodChecks = checkFactory("good");
 
-export function shouldNotNotify(e: { message: message }): boolean {
+export function shouldNotNotify(e: { message: Message }): boolean {
   const msg = e.message;
   if (msg.author.id == common.users.getCurrentUser().id) {
     return true;
@@ -84,7 +84,7 @@ export function shouldNotNotify(e: { message: message }): boolean {
     return true;
   }
 
-  const store = tmpStore as unknown as guildStore;
+  const store = tmpStore as unknown as GuildStore;
 
   if (msg.guild_id && cfg.get("respectMutedGuilds") && store.isMuted(msg.guild_id)) {
     return true;
@@ -113,7 +113,10 @@ export function shouldNotNotify(e: { message: message }): boolean {
     }
   }
 
-  const status = getByProps<{getStatus: () => string}, "getStatus" | "getActivities">(["getStatus", "getActivities"])?.getStatus()
+  const status = getByProps<{ getStatus: () => string }, "getStatus" | "getActivities">([
+    "getStatus",
+    "getActivities",
+  ])?.getStatus();
 
   if (status != "dnd") {
     return false;
