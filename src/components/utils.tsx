@@ -1,7 +1,7 @@
 import { common, components, util } from "replugged";
 import { SettingsArray, SettingsString, cfg } from "./common";
 const { useState } = common.React;
-const { TextInput, Text, Button, Flex, FormItem } = components;
+const { TextInput, Text, Button, Flex } = components;
 
 export function Option({
   opt,
@@ -78,17 +78,12 @@ export function OptionPlus({
         {value.map((v, i) => {
           return (
             <Flex direction={Flex.Direction.HORIZONTAL} style={{ gap: "2vw" }}>
-              <FormItem>
-                <TextInput
-                  onSubmit={() => {
-                    updateValue(i);
-                  }}
-                  onChange={setEditCache}
-                  placeholder="Phrase"
-                  value={i === editLoc ? editCache : v}
-                  disabled={i !== editLoc}
-                />
-              </FormItem>
+              <TextInput
+                onChange={setEditCache}
+                placeholder="Phrase"
+                value={i === editLoc ? editCache : v}
+                disabled={i !== editLoc}
+              />
               {editLoc === i ? (
                 <OpenPlusEditItems disableSave={editCache.length === 0} onSave={() => {
                   updateValue(i);
@@ -113,14 +108,11 @@ export function OptionPlus({
         })}
         {editLoc === -2 ? (
           <Flex direction={Flex.Direction.HORIZONTAL} style={{ gap: "2vw" }}>
-            <FormItem>
-              <TextInput
-                onSubmit={addValue}
-                onChange={setEditCache}
-                placeholder="Phrase"
-                value={editCache}
-              />
-            </FormItem>
+            <TextInput
+              onChange={setEditCache}
+              placeholder="Phrase"
+              value={editCache}
+            />
             <OpenPlusEditItems disableSave={editCache.length === 0} onSave={addValue} onDelete={() => {
                 setEditLoc(-1);
                 setEditCache("");
