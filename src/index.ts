@@ -69,10 +69,9 @@ export function shouldNotNotify(e: { message: message }): boolean {
   if (msg.author.id == common.users.getCurrentUser().id) {
     return true;
   }
-  const conf = cfg.all();
 
   if (
-    !(conf.notifyIfFocused ?? defaultSettings.notifyIfFocused) &&
+    !cfg.get("notifyIfFocused") &&
     common.channels.getCurrentlySelectedChannelId() == msg.channel_id &&
     document.hasFocus()
   ) {
@@ -89,20 +88,20 @@ export function shouldNotNotify(e: { message: message }): boolean {
 
   if (
     msg.guild_id &&
-    (conf.respectMutedGuilds ?? defaultSettings.respectMutedGuilds) &&
+    cfg.get("respectMutedGuilds") &&
     store.isMuted(msg.guild_id)
   ) {
     return true;
   }
   if (
     msg.guild_id &&
-    (conf.respectMutedCategories ?? defaultSettings.respectMutedCategories) &&
+    cfg.get("respectMutedCategories") &&
     store.isCategoryMuted(msg.guild_id, msg.channel_id)
   ) {
     return true;
   }
 
-  if (conf.respectMutedChannels ?? defaultSettings.respectMutedChannels) {
+  if (cfg.get("respectMutedChannels")) {
     let gID = null;
     if (msg.guild_id) {
       gID = msg.guild_id;
@@ -110,14 +109,6 @@ export function shouldNotNotify(e: { message: message }): boolean {
     if (store.isChannelMuted(gID, msg.channel_id)) {
       return true;
     }
-  }
-
-  if (
-    msg.guild_id &&
-    conf.respectMutedCategories &&
-    store.isCategoryMuted(msg.guild_id, msg.channel_id)
-  ) {
-    return true;
   }
 
   for (const f of isBadChecks) {
