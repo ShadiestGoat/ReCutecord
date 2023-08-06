@@ -86,11 +86,7 @@ export function shouldNotNotify(e: { message: message }): boolean {
 
   const store = tmpStore as unknown as guildStore;
 
-  if (
-    msg.guild_id &&
-    cfg.get("respectMutedGuilds") &&
-    store.isMuted(msg.guild_id)
-  ) {
+  if (msg.guild_id && cfg.get("respectMutedGuilds") && store.isMuted(msg.guild_id)) {
     return true;
   }
   if (
