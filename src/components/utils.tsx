@@ -19,7 +19,7 @@ export function Option({
         placeholder={title}
         title={title}
         about={explanation}
-        {...util.useSettingArray(cfg, opt, "")}
+        {...util.useSetting(cfg, opt, "")}
       />
     </div>
   );

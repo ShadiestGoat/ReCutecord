@@ -1,8 +1,7 @@
 import { Injector, Logger, common, webpack } from "replugged";
 import type { guildStore, message } from "./types";
 import { Settings, cfg, defaultSettings } from "./components/common";
-import { byProps } from "replugged/dist/renderer/modules/webpack/filters";
-const { getByStoreName, getModule } = webpack;
+const { getByStoreName, getModule, filters } = webpack;
 
 const injector = new Injector();
 const logger = Logger.plugin("Cutecord");
@@ -151,7 +150,7 @@ export function shouldNotNotify(e: { message: message }): boolean {
   }
 
   // @ts-expect-error bc no types :(
-  const status = getModule(byProps("getStatus", "getActivities"))!.getStatus() as string;
+  const status = getModule(filters.byProps("getStatus", "getActivities"))!.getStatus() as string;
 
   if (status != "dnd") {
     return false;

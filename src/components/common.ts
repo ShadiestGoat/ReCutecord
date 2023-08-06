@@ -37,6 +37,6 @@ export const defaultSettings = {
 } satisfies Settings;
 
 export const cfg = await settings.init<Settings, keyof typeof defaultSettings>(
-  "eu.shadygoat.Cutecord",
+  "eu.shadygoat.cutecord",
   defaultSettings,
 );
