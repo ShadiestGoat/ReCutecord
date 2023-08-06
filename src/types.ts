@@ -1,7 +1,4 @@
-import { common } from "replugged";
-const { Store } = common.flux;
 /* eslint-disable @typescript-eslint/naming-convention */
-
 interface BaseUser {
   username: string;
   id: string;
@@ -41,10 +38,4 @@ export type RefMessage = MessageBase & {
 export type Message = MessageBase & {
   author: MsgAuthor;
   referenced_message?: RefMessage;
-};
-
-export type GuildStore = typeof Store & {
-  isMuted(guildID: string): boolean;
-  isChannelMuted(guildID: string | null, chanID: string): boolean;
-  isCategoryMuted(guildID: string, chanID: string): boolean;
 };

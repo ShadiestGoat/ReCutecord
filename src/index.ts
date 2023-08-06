@@ -1,7 +1,8 @@
 import { Injector, Logger, common, webpack } from "replugged";
-import type { GuildStore, Message } from "./types";
+import type { Message } from "./types";
 import { cfg } from "./components/common";
 const { getByStoreName, getByProps } = webpack;
+import { Store } from "replugged/dist/renderer/modules/common/flux";
 
 const injector = new Injector();
 const logger = Logger.plugin("Cutecord");
@@ -78,13 +79,15 @@ export function shouldNotNotify(e: { message: Message }): boolean {
     return true;
   }
 
-  const tmpStore = getByStoreName("UserGuildSettingsStore");
+  const store = getByStoreName<Store & {
+    isMuted(guildID: string): boolean;
+    isChannelMuted(guildID: string | null, chanID: string): boolean;
+    isCategoryMuted(guildID: string, chanID: string): boolean;
+  }>("UserGuildSettingsStore");
   // to make the editor happy <3
-  if (!tmpStore) {
+  if (!store) {
     return true;
   }
-
-  const store = tmpStore as unknown as GuildStore;
 
   if (msg.guild_id && cfg.get("respectMutedGuilds") && store.isMuted(msg.guild_id)) {
     return true;
