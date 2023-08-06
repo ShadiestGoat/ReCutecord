@@ -1,6 +1,6 @@
 import { Injector, Logger, webpack, common } from "replugged";
 import type { guildStore, message } from "./types";
-import { Settings, cfg } from "./components/common";
+import { Settings, cfg, defaultSettings } from "./components/common";
 const { getByStoreName } = webpack;
 
 
@@ -93,10 +93,16 @@ const isGoodChecks: Array<(msg: message, conf: Settings) => boolean> = [
 
 export function shouldNotNotify(e: {message: message}): boolean {
   const msg = e.message
-  const tmpStore = getByStoreName("UserGuildSettingsStore")
-  
+  if (msg.author.id == common.users.getCurrentUser().id) {
+    return true
+  }
   const conf = cfg.all()
-
+  
+  if (!(conf.notifyIfFocused ?? defaultSettings.notifyIfFocused) && common.channels.getCurrentlySelectedChannelId() == msg.channel_id) {
+    return true
+  }
+  
+  const tmpStore = getByStoreName("UserGuildSettingsStore")
   // to make the editor happy <3
   if (!tmpStore) {
     return true
@@ -111,12 +117,12 @@ export function shouldNotNotify(e: {message: message}): boolean {
     return true
   }
   if (conf.respectMutedChannels) {
+    let gID = null 
     if (msg.guild_id) {
-      if (store.isChannelMuted(msg.guild_id, msg.channel_id)) {
-        return true
-      }
-    } else {
-      // TODO: DM channels
+      gID = msg.guild_id
+    }
+    if (store.isChannelMuted(gID, msg.channel_id)) {
+      return true
     }
   }
 

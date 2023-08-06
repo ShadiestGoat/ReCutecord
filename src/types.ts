@@ -45,6 +45,6 @@ export type message = messageBase & {
 
 export type guildStore = typeof Store & {
   isMuted(guildID: string): boolean,
-  isChannelMuted(guildID: string, chanID: string): boolean,
+  isChannelMuted(guildID: string | null, chanID: string): boolean,
   isCategoryMuted(guildID: string, chanID: string): boolean,
 }
