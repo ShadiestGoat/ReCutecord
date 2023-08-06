@@ -34,12 +34,12 @@ export function Settings(): React.ReactElement {
 
       <Summary title="Cuties/Meanies">
         <Option
-          opt="cuties"
+          opt="goodUsers"
           explanation="User IDs that you will be notified for (unless negative filters are met)"
           title="Cuties"
         />
         <Option
-          opt="meanies"
+          opt="badUsers"
           explanation="User IDs that you will not be notified for"
           title="Meanies"
         />
@@ -47,7 +47,7 @@ export function Settings(): React.ReactElement {
 
       <Summary title="Channels">
         <Option
-          opt="channels"
+          opt="goodChannels"
           explanation="Channel IDs that will send you notifications (unless negative filters are met)"
           title="Good Channels"
         />
@@ -60,7 +60,7 @@ export function Settings(): React.ReactElement {
 
       <Summary title="Guilds">
         <Option
-          opt="guilds"
+          opt="goodGuilds"
           explanation="Guild IDs that you will be notified for (unless negative filters are met)"
           title="Good Guilds"
         />
@@ -73,7 +73,7 @@ export function Settings(): React.ReactElement {
 
       <Summary title="Phrases">
         <OptionPlus
-          opt="phrases"
+          opt="goodPhrases"
           explanation="Case-insensitive phrases that you will be notified for (unless negative filters are met)"
           title="Good Phrases"
         />

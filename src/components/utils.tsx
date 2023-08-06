@@ -19,7 +19,7 @@ export function Option({
         placeholder={title}
         title={title}
         about={explanation}
-        {...util.useSetting(cfg, opt, "")}
+        {...util.useSetting(cfg, opt)}
       />
     </div>
   );
@@ -53,7 +53,7 @@ export function OptionPlus({
   title: string;
   explanation: string;
 }): React.ReactElement {
-  const { value, onChange } = util.useSetting(cfg, opt, []);
+  const { value, onChange } = util.useSetting(cfg, opt);
   const [editLoc, setEditLoc] = useState(-1);
   const [editCache, setEditCache] = useState("");
 

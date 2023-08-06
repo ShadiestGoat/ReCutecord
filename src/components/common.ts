@@ -1,39 +1,31 @@
 import { settings } from "replugged";
 
-export interface Settings extends SettingsString, SettingsArray {
-  respectMutedChannels: boolean;
-  respectMutedCategories: boolean;
-  respectMutedGuilds: boolean;
-  notifyIfFocused: boolean;
-}
-
-export interface SettingsString {
-  cuties?: string;
-  meanies?: string;
-  channels?: string;
-  badChannels?: string;
-  guilds?: string;
-  badGuilds?: string;
-}
-
-export interface SettingsArray {
-  phrases?: string[];
-  badPhrases?: string[];
-}
+export type settingsArrayKeys = "Phrases";
+export type settingsStringKeys = "Users" | "Channels" | "Guilds";
+export type settingUtil<T extends string> = `good${T}` | `bad${T}`;
+export type SettingsString = Record<settingUtil<settingsStringKeys>, string>;
+export type SettingsArray = Record<settingUtil<settingsArrayKeys>, string[]>;
+export type Settings = SettingsString &
+  SettingsArray & {
+    respectMutedChannels: boolean;
+    respectMutedCategories: boolean;
+    respectMutedGuilds: boolean;
+    notifyIfFocused: boolean;
+  };
 
 export const defaultSettings = {
-  cuties: "",
-  meanies: "",
-  phrases: [],
-  badPhrases: [],
-  channels: "",
   badChannels: "",
-  guilds: "",
+  goodChannels: "",
   badGuilds: "",
-  respectMutedChannels: true,
-  respectMutedCategories: true,
-  respectMutedGuilds: true,
+  goodGuilds: "",
+  badUsers: "",
+  goodUsers: "",
+  badPhrases: [],
+  goodPhrases: [],
   notifyIfFocused: false,
+  respectMutedCategories: true,
+  respectMutedChannels: true,
+  respectMutedGuilds: true,
 } satisfies Settings;
 
 export const cfg = await settings.init<Settings, keyof typeof defaultSettings>(

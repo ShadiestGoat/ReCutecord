@@ -1,6 +1,6 @@
 import { Injector, Logger, common, webpack } from "replugged";
 import type { guildStore, message } from "./types";
-import { Settings, cfg, defaultSettings } from "./components/common";
+import { cfg, defaultSettings } from "./components/common";
 const { getByStoreName, getModule, filters } = webpack;
 
 const injector = new Injector();
@@ -26,69 +26,43 @@ function phraseIncludes(phraseBank: string[], content: string): boolean {
   return false;
 }
 
-function bsArrayInclude(v: string, conf?: string): boolean {
-  return (conf?.split(" ") ?? []).includes(v);
+function checkFactory(prefix: "good" | "bad"): Array<(msg: message) => boolean> {
+  return [
+    // phrase check
+    (msg) => {
+      return phraseIncludes(cfg.get(`${prefix}Phrases`), msg.content);
+    },
+    // guild check
+    (msg) => {
+      if (!msg.guild_id) {
+        return false;
+      }
+      return cfg.get(`${prefix}Guilds`).split(" ").includes(msg.guild_id);
+    },
+    // user check
+    (msg) => cfg.get(`${prefix}Users`).split(" ").includes(msg.author.id),
+    // channel check
+    (msg) => {
+      const channels = cfg.get(`${prefix}Channels`).split(" ");
+      if (channels.includes(msg.channel_id)) {
+        return true;
+      }
+      if (msg.guild_id) {
+        const chan = common.channels.getBasicChannel(msg.channel_id);
+        if (!chan) {
+          return false;
+        }
+        if (chan.parent_id) {
+          return channels.includes(chan.parent_id);
+        }
+      }
+      return false;
+    },
+  ];
 }
 
-const isBadChecks: Array<(msg: message, conf: Settings) => boolean> = [
-  (msg, conf) => {
-    // phrase check
-    return phraseIncludes(conf.badPhrases ?? [], msg.content);
-  },
-  (msg, conf) => {
-    if (!msg.guild_id) {
-      return false;
-    }
-    return bsArrayInclude(msg.guild_id, conf.badGuilds);
-  },
-  (msg, conf) => bsArrayInclude(msg.author.id, conf.meanies),
-  (msg, conf) => {
-    if (bsArrayInclude(msg.channel_id, conf.channels)) {
-      return true;
-    }
-    if (msg.guild_id) {
-      const chan = common.channels.getBasicChannel(msg.channel_id);
-      if (!chan) {
-        return false;
-      }
-      if (chan.parent_id) {
-        return bsArrayInclude(chan.parent_id, conf.channels);
-      }
-    }
-
-    return false;
-  },
-];
-
-const isGoodChecks: Array<(msg: message, conf: Settings) => boolean> = [
-  (msg, conf) => {
-    // phrase check
-    return phraseIncludes(conf.phrases ?? [], msg.content);
-  },
-  (msg, conf) => {
-    if (!msg.guild_id) {
-      return false;
-    }
-    return bsArrayInclude(msg.guild_id, conf.guilds);
-  },
-  (msg, conf) => bsArrayInclude(msg.author.id, conf.cuties),
-  (msg, conf) => {
-    if (bsArrayInclude(msg.channel_id, conf.channels)) {
-      return true;
-    }
-    if (msg.guild_id) {
-      const chan = common.channels.getBasicChannel(msg.channel_id);
-      if (!chan) {
-        return false;
-      }
-      if (chan.parent_id) {
-        return bsArrayInclude(chan.parent_id, conf.channels);
-      }
-    }
-
-    return false;
-  },
-];
+const isBadChecks = checkFactory("bad");
+const isGoodChecks = checkFactory("good");
 
 export function shouldNotNotify(e: { message: message }): boolean {
   const msg = e.message;
@@ -147,7 +121,7 @@ export function shouldNotNotify(e: { message: message }): boolean {
   }
 
   for (const f of isBadChecks) {
-    if (f(msg, conf)) {
+    if (f(msg)) {
       return true;
     }
   }
@@ -160,7 +134,7 @@ export function shouldNotNotify(e: { message: message }): boolean {
   }
 
   for (const f of isGoodChecks) {
-    if (f(msg, conf)) {
+    if (f(msg)) {
       return false;
     }
   }
