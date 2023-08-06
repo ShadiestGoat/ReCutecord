@@ -99,7 +99,7 @@ export function shouldNotNotify(e: { message: message }): boolean {
 
   if (
     !(conf.notifyIfFocused ?? defaultSettings.notifyIfFocused) &&
-    common.channels.getCurrentlySelectedChannelId() == msg.channel_id && 
+    common.channels.getCurrentlySelectedChannelId() == msg.channel_id &&
     document.hasFocus()
   ) {
     return true;
@@ -113,7 +113,11 @@ export function shouldNotNotify(e: { message: message }): boolean {
 
   const store = tmpStore as unknown as guildStore;
 
-  if (msg.guild_id && (conf.respectMutedGuilds ?? defaultSettings.respectMutedGuilds) && store.isMuted(msg.guild_id)) {
+  if (
+    msg.guild_id &&
+    (conf.respectMutedGuilds ?? defaultSettings.respectMutedGuilds) &&
+    store.isMuted(msg.guild_id)
+  ) {
     return true;
   }
   if (
