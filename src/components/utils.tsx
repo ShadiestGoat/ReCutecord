@@ -1,7 +1,7 @@
 import { common, components, util } from "replugged";
 import { SettingsArray, SettingsString, cfg } from "./common";
 const { useState } = common.React;
-const { TextInput, Text, Button, ButtonItem, Flex, FormItem } = components;
+const { TextInput, Text, Button, Flex, FormItem } = components;
 
 export function Option({
   opt,
@@ -74,7 +74,7 @@ export function OptionPlus({
   return (
     <div>
       <TitleSub title={title} explanation={explanation} />
-      <Flex className="option-plus-wrapper" direction={Flex.Direction.VERTICAL}>
+      <Flex className="option-plus-wrapper" direction={Flex.Direction.VERTICAL} style={{gap: "2vh"}}>
         {value.map((v, i) => {
           return (
             <Flex direction={Flex.Direction.HORIZONTAL} style={{ gap: "2vw" }}>
@@ -90,44 +90,24 @@ export function OptionPlus({
                 />
               </FormItem>
               {editLoc === i ? (
-                <>
-                  <ButtonItem
-                    onClick={() => {
-                      updateValue(i);
-                    }}
-                    button="💾"
-                    color={Button.Colors.GREEN}
-                    disabled={editCache.length === 0}
-                  />
-                  <ButtonItem
-                    onClick={() => {
-                      setEditLoc(-1);
-                      setEditCache("");
-                    }}
-                    button="x"
-                    color={Button.Colors.YELLOW}
-                  />
-                  <ButtonItem
-                    onClick={() => {
-                      value.splice(i, 1);
-                      onChange([...value]);
-                    }}
-                    button="🗑️"
-                    color={Button.Colors.RED}
-                  />
-                </>
-              ) : (
-                <>
-                  <ButtonItem
-                    onClick={() => {
-                      setEditLoc(i);
-                      setEditCache(v);
-                    }}
-                    button="Edit"
-                    color={Button.Colors.BRAND}
-                  />
-                </>
-              )}
+                <OpenPlusEditItems disableSave={editCache.length === 0} onSave={() => {
+                  updateValue(i);
+                }} onDelete={() => {
+                  value.splice(i, 1);
+                  onChange([...value]);
+                }} onCancel={() => {
+                  setEditLoc(-1);
+                  setEditCache("");
+                }} />
+              ) : 
+                <Button
+                  onClick={() => {
+                    setEditLoc(i);
+                    setEditCache(v);
+                  }}
+                  color={Button.Colors.BRAND}
+                >Edit</Button>
+              }
             </Flex>
           );
         })}
@@ -141,20 +121,10 @@ export function OptionPlus({
                 value={editCache}
               />
             </FormItem>
-            <ButtonItem
-              onClick={addValue}
-              button="💾"
-              color={Button.Colors.GREEN}
-              disabled={editCache.length === 0}
-            />
-            <ButtonItem
-              onClick={() => {
+            <OpenPlusEditItems disableSave={editCache.length === 0} onSave={addValue} onDelete={() => {
                 setEditLoc(-1);
                 setEditCache("");
-              }}
-              button="x"
-              color={Button.Colors.RED}
-            />
+            }} />
           </Flex>
         ) : (
           ""
@@ -169,6 +139,28 @@ export function OptionPlus({
       </Flex>
     </div>
   );
+}
+
+function OpenPlusEditItems({onSave, disableSave, onDelete, onCancel}: {onSave: () => void, disableSave: boolean, onDelete: () => void, onCancel?: () => void}): React.ReactElement {
+  return <>
+    <Button
+      onClick={onSave}
+      color={Button.Colors.GREEN}
+      disabled={disableSave}
+    >💾</Button>
+    {
+      onCancel ? 
+        <Button
+          onClick={onCancel}
+          color={Button.Colors.YELLOW}
+        >X</Button>
+      : ""
+    }
+    <Button
+      onClick={onDelete}
+      color={Button.Colors.RED}
+    >🗑️</Button>
+  </>
 }
 
 export function Summary({
