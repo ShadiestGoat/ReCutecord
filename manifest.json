@@ -9,8 +9,8 @@
   },
   "version": "2.0.4",
   "updater": {
-    "type": "github",
-    "id": "ShadiestGoat/ReCutecord"
+    "type": "store",
+    "id": "eu.shadygoat.cutecord"
   },
   "license": "MIT",
   "type": "replugged-plugin",

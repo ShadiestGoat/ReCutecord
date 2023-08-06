@@ -1,6 +1,6 @@
 # (Re)Cutecord
 
-[![Install in Replugged](https://img.shields.io/badge/-Install%20in%20Replugged-blue?style=for-the-badge&logo=none)](https://replugged.dev/install?identifier=ShadiestGoat/ReCutecord&source=github)
+[![Install in Replugged](https://img.shields.io/badge/-Install%20in%20Replugged-blue?style=for-the-badge&logo=none)](https://replugged.dev/install?identifier=eu.shadygoat.cutecord)
 
 A Replugged version of Cutecord! Allow certain users, channels, guilds, or even phrases to bypass your discord Do Not Disturb mode
 
