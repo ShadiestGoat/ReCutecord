@@ -146,9 +146,6 @@ export function shouldNotNotify(e: { message: message }): boolean {
     return true;
   }
 
-  // notifyIfFocused
-  // onlyActivateOnDND
-
   for (const f of isBadChecks) {
     if (f(msg, conf)) {
       return true;
