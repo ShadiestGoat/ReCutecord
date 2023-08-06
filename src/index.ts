@@ -79,11 +79,13 @@ export function shouldNotNotify(e: { message: Message }): boolean {
     return true;
   }
 
-  const store = getByStoreName<Store & {
-    isMuted(guildID: string): boolean;
-    isChannelMuted(guildID: string | null, chanID: string): boolean;
-    isCategoryMuted(guildID: string, chanID: string): boolean;
-  }>("UserGuildSettingsStore");
+  const store = getByStoreName<
+    Store & {
+      isMuted(guildID: string): boolean;
+      isChannelMuted(guildID: string | null, chanID: string): boolean;
+      isCategoryMuted(guildID: string, chanID: string): boolean;
+    }
+  >("UserGuildSettingsStore");
   // to make the editor happy <3
   if (!store) {
     return true;

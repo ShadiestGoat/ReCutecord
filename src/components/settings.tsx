@@ -7,7 +7,9 @@ const { Flex, SwitchItem, Notice } = components;
 export function Settings(): React.ReactElement {
   return (
     <Flex style={{ gap: "2vh", flexDirection: "column" }}>
-      <Notice messageType={Notice.Types.INFO}>All text values (except phrases) are space separated lists!</Notice>
+      <Notice messageType={Notice.Types.INFO}>
+        All text values (except phrases) are space separated lists!
+      </Notice>
 
       <SwitchItem
         {...util.useSetting(cfg, "respectMutedChannels", defaultSettings.respectMutedChannels)}
