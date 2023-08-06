@@ -24,3 +24,7 @@ details > *:not(:last-child) {
 .option-plus-wrapper {
   margin-top: 2vh;
 }
+
+.option-text-inp {
+  margin-top: 2vh;
+}

@@ -13,15 +13,16 @@ export function Option({
   explanation: string;
 }): React.ReactElement {
   return (
-    <div>
+    <Flex direction={Flex.Direction.VERTICAL}>
       <TitleSub title={title} explanation={explanation} />
       <TextInput
+        className="option-text-inp"
         placeholder={title}
         title={title}
         about={explanation}
         {...util.useSetting(cfg, opt)}
       />
-    </div>
+    </Flex>
   );
 }
 
