@@ -16,5 +16,6 @@
   "type": "replugged-plugin",
   "renderer": "src/index.ts",
   "plaintextPatches": "src/patches.ts",
-  "reloadRequired": true
+  "reloadRequired": true,
+  "image": "https://cdn.discordapp.com/attachments/735886276070342696/1137563945721401394/Graphic_design_is_my_passion.png"
 }
