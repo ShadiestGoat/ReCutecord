@@ -93,7 +93,7 @@ export function shouldNotNotify(e: { message: Message }): boolean {
     return true;
   }
 
-  // self explanatory - check if the user already muted the guild, category, or channel 
+  // self explanatory - check if the user already muted the guild, category, or channel
   if (msg.guild_id && cfg.get("respectMutedGuilds") && store.isMuted(msg.guild_id)) {
     return true;
   }
