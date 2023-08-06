@@ -2,14 +2,12 @@ import { components, util } from "replugged";
 import { Option, OptionPlus, Summary } from "./utils";
 import "./settings.css";
 import { cfg, defaultSettings } from "./common";
-const { Text, Flex, SwitchItem } = components;
+const { Flex, SwitchItem, Notice } = components;
 
 export function Settings(): React.ReactElement {
   return (
     <Flex style={{ gap: "2vh", flexDirection: "column" }}>
-      <Text variant="text-sm/normal" selectable={true}>
-        Note: all text values (except phrases section) are space separated lists!
-      </Text>
+      <Notice messageType={Notice.Types.INFO}>All text values (except phrases) are space separated lists!</Notice>
 
       <SwitchItem
         {...util.useSetting(cfg, "respectMutedChannels", defaultSettings.respectMutedChannels)}
