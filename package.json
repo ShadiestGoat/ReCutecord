@@ -1,5 +1,5 @@
 {
-  "name": "plugin-template",
+  "name": "re-cutecord",
   "version": "1.0.0",
   "description": "A plugin template",
   "engines": {
@@ -19,8 +19,12 @@
     "lint:fix": "pnpm run prettier:fix && pnpm run eslint:fix"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": {
+    "email": "shady@shadygoat.eu",
+    "name": "Lucy Dryaeva",
+    "url": "https://shadygoat.eu"
+  },
+  "license": "MIT",
   "devDependencies": {
     "@types/node": "^18.15.11",
     "@types/react": "^18.2.16",
