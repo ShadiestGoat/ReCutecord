@@ -45,7 +45,7 @@ export type Message = MessageBase & {
   referenced_message?: RefMessage;
 };
 
-export type ShouldNotifyCheck = (msg: Message) => ShouldNotify
+export type ShouldNotifyCheck = (msg: Message) => ShouldNotify;
 export enum ShouldNotify {
   /**
    * If a check returns a DONT_NOTIFY, the check list will not continue, and the notification will not be played
@@ -65,17 +65,17 @@ export enum DiscordNotificationSetting {
   ALL,
   ONLY_MENTIONS,
   NONE,
-  INHERIT
+  INHERIT,
 }
 
 export interface UserGuildSettingsStore extends Store {
   isMuted(guildID: string): boolean;
   isChannelMuted(guildID: string | null, chanID: string): boolean;
   isCategoryMuted(guildID: string, chanID: string): boolean;
-  
+
   getMessageNotifications(guildID: string): DiscordNotificationSetting;
   getChannelMessageNotifications(guildID: string, chanID: string): DiscordNotificationSetting;
-  
+
   isSuppressRolesEnabled(guildID: string): boolean;
   isSuppressEveryoneEnabled(guildID: string): boolean;
 }
