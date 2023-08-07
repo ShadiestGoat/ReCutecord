@@ -1,5 +1,5 @@
 {
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
-  "cSpell.words": ["Cutecord"]
+  "cSpell.words": ["Cutecord", "DONT"]
 }

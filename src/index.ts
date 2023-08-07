@@ -1,14 +1,9 @@
-import { Logger, common, webpack } from "replugged";
-import type { Message } from "./types";
+import { common, webpack } from "replugged";
+import { ShouldNotify, type Message, type ShouldNotifyCheck, UserGuildSettingsStore, DiscordNotificationSetting } from "./types";
 import { cfg } from "./components/common";
 const { getByStoreName, getByProps } = webpack;
-import { Store } from "replugged/dist/renderer/modules/common/flux";
 
-const logger = Logger.plugin("Cutecord");
-
-export function start(): void {
-  logger.log("Started!! <3");
-}
+export function start(): void {}
 
 export function stop(): void {}
 
@@ -24,101 +19,120 @@ function phraseIncludes(phraseBank: string[], content: string): boolean {
   return false;
 }
 
-function checkFactory(prefix: "good" | "bad"): Array<(msg: Message) => boolean> {
+function checkFactory(prefix: "good" | "bad"): Array<[string, ShouldNotifyCheck]> {
+  const shouldNotifyV = prefix == "good" ? ShouldNotify.MUST_NOTIFY : ShouldNotify.DONT_NOTIFY
+
   return [
     // phrase check
-    (msg) => {
-      return phraseIncludes(cfg.get(`${prefix}Phrases`), msg.content);
-    },
+    [`${prefix}Phrase`, (msg) => {
+      return phraseIncludes(cfg.get(`${prefix}Phrases`), msg.content) ? shouldNotifyV : ShouldNotify.CONTINUE;
+    }],
     // guild check
-    (msg) => {
+    [`${prefix}Guild`, (msg) => {
       if (!msg.guild_id) {
-        return false;
+        return ShouldNotify.CONTINUE;
       }
-      return cfg.get(`${prefix}Guilds`).split(" ").includes(msg.guild_id);
-    },
+      return cfg.get(`${prefix}Guilds`).split(" ").includes(msg.guild_id) ? shouldNotifyV : ShouldNotify.CONTINUE;
+    }],
     // user check
-    (msg) => cfg.get(`${prefix}Users`).split(" ").includes(msg.author.id),
+    [`${prefix}User`, (msg) => cfg.get(`${prefix}Users`).split(" ").includes(msg.author.id) ? shouldNotifyV : ShouldNotify.CONTINUE],
     // channel check
-    (msg) => {
+    [`${prefix}ChannelCheck`, (msg) => {
       const channels = cfg.get(`${prefix}Channels`).split(" ");
       if (channels.includes(msg.channel_id)) {
-        return true;
+        return shouldNotifyV;
       }
       // also check if the channel's category is muted
       if (msg.guild_id) {
         const chan = common.channels.getBasicChannel(msg.channel_id);
         if (!chan) {
-          return false;
+          return ShouldNotify.CONTINUE;
         }
         if (chan.parent_id) {
-          return channels.includes(chan.parent_id);
+          return channels.includes(chan.parent_id) ? shouldNotifyV : ShouldNotify.CONTINUE;
         }
       }
-      return false;
-    },
+      return ShouldNotify.CONTINUE;
+    }],
   ];
 }
 
-const isBadChecks = checkFactory("bad");
-const isGoodChecks = checkFactory("good");
-
-export function shouldNotNotify(e: { message: Message }): boolean {
-  const msg = e.message;
-
-  // don't notify if its your own message
-  if (msg.author.id == common.users.getCurrentUser().id) {
-    return true;
-  }
-
-  // exception for if you already viewing a channel (& discord has focus)
-  if (
+/**
+ * A list of checks, executed in order, to check if a notification should be played.
+ * 
+ * Each check must return a ShouldNotify enum value:
+ * 0 - Don't notify
+ * 1 - Do Notify
+ * 2 - Continue running the checks
+ * 
+ * Each check is a [checkName, and a ShouldNotifyCheck]. Use ignoreChecks to blacklist some checks.
+ * 
+ * If the notification checks reaches the end without a conclusive result (ie. all the checks return a CONTINUE (2)), then the user's status & channel/category/guild notification settings will be used as a fallback.
+ */
+export let notificationChecks: Array<[string, ShouldNotifyCheck]> = [
+  ["selfException", (msg) => msg.author.id == common.users.getCurrentUser().id ? ShouldNotify.DONT_NOTIFY : ShouldNotify.CONTINUE,],
+  ["focusedException", (msg) => (
     !cfg.get("notifyIfFocused") &&
     common.channels.getCurrentlySelectedChannelId() == msg.channel_id &&
     document.hasFocus()
-  ) {
-    return true;
-  }
+  ) ? ShouldNotify.DONT_NOTIFY : ShouldNotify.CONTINUE],
+  ["respectMutes", (msg) => {
+    const store = getByStoreName<UserGuildSettingsStore>("UserGuildSettingsStore");
 
-  const store = getByStoreName<
-    Store & {
-      isMuted(guildID: string): boolean;
-      isChannelMuted(guildID: string | null, chanID: string): boolean;
-      isCategoryMuted(guildID: string, chanID: string): boolean;
+    // to make the editor happy <3
+    if (!store) {
+      return ShouldNotify.CONTINUE;
     }
-  >("UserGuildSettingsStore");
 
-  // to make the editor happy <3
-  if (!store) {
-    return true;
-  }
-
-  // self explanatory - check if the user already muted the guild, category, or channel
-  if (msg.guild_id && cfg.get("respectMutedGuilds") && store.isMuted(msg.guild_id)) {
-    return true;
-  }
-  if (
-    msg.guild_id &&
-    cfg.get("respectMutedCategories") &&
-    store.isCategoryMuted(msg.guild_id, msg.channel_id)
-  ) {
-    return true;
-  }
-  if (cfg.get("respectMutedChannels")) {
-    // have to use null for private channels, because shitcord
-    let gID = null;
-    if (msg.guild_id) {
-      gID = msg.guild_id;
+    // self explanatory - check if the user already muted the guild, category, or channel
+    if (msg.guild_id && cfg.get("respectMutedGuilds") && store.isMuted(msg.guild_id)) {
+      return ShouldNotify.DONT_NOTIFY;
     }
-    if (store.isChannelMuted(gID, msg.channel_id)) {
-      return true;
-    }
-  }
 
-  // Check if the message meets the bad checks. These filters take priority over all good filters because they act as what is essentially a safety net
-  for (const f of isBadChecks) {
-    if (f(msg)) {
-      return true;
+    if (
+      msg.guild_id &&
+      cfg.get("respectMutedCategories") &&
+      store.isCategoryMuted(msg.guild_id, msg.channel_id)
+    ) {
+      return ShouldNotify.DONT_NOTIFY;
+    }
+    if (cfg.get("respectMutedChannels")) {
+      // have to use null for private channels, because shitcord
+      let gID = null;
+      if (msg.guild_id) {
+        gID = msg.guild_id;
+      }
+      if (store.isChannelMuted(gID, msg.channel_id)) {
+        return ShouldNotify.DONT_NOTIFY;
+      }
+    }
+
+    return ShouldNotify.CONTINUE
+  }],
+  ...checkFactory("bad"),
+  ...checkFactory("good"),
+]
+
+/**
+ * A set of checks to not run (just in case others wanna use this)
+ */
+export let ignoreChecks = new Set<string>()
+
+export function shouldNotify(e: { message: Message }): boolean {
+  const msg = e.message;
+  console.log(msg)
+
+  for (const [name, f] of notificationChecks) {
+    if (ignoreChecks.has(name)) {
+      continue
+    }
+    const out = f(msg)
+
+    switch (out) {
+      case ShouldNotify.DONT_NOTIFY:
+        return false
+      case ShouldNotify.MUST_NOTIFY:
+        return true
     }
   }
 
@@ -128,17 +142,51 @@ export function shouldNotNotify(e: { message: Message }): boolean {
   ])?.getStatus();
 
   // If the user is online or idle etc, then there is no need to do good checks - always fire the notification!
-  if (status != "dnd") {
+  if (status == "dnd") {
     return false;
   }
 
-  for (const f of isGoodChecks) {
-    if (f(msg)) {
-      return false;
+  if (!msg.guild_id) {
+    return true
+  }
+
+  // now, re-implement discord notification settings
+  const store = getByStoreName<UserGuildSettingsStore>("UserGuildSettingsStore");
+
+  if (!store) {
+    return false
+  }
+  
+  let chanMsgNotifications = store.getChannelMessageNotifications(msg.guild_id, msg.channel_id)
+  if (chanMsgNotifications == DiscordNotificationSetting.INHERIT) {
+    const chan = common.channels.getBasicChannel(msg.channel_id);
+    if (chan?.parent_id) {
+      chanMsgNotifications = store.getChannelMessageNotifications(msg.guild_id, chan.parent_id)
+    }
+    if (chanMsgNotifications == DiscordNotificationSetting.INHERIT) {
+      chanMsgNotifications = store.getMessageNotifications(msg.guild_id)
     }
   }
 
-  return true;
+  if (chanMsgNotifications == DiscordNotificationSetting.NONE) {
+    return false
+  } else if (chanMsgNotifications == DiscordNotificationSetting.ALL) {
+    return true
+  }
+
+  const member = common.users.getSelfMember(msg.guild_id)
+  if (!member) {
+    return false
+  }
+  if (msg.mentions.includes(member.userId)) {
+    return true
+  }
+
+  if (!store.isSuppressRolesEnabled(msg.guild_id) && member.roles.find(v => msg.mention_roles.includes(v))) {
+    return true
+  }
+
+  return false;
 }
 
 export { Settings } from "./components/settings";
