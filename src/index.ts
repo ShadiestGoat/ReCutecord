@@ -158,7 +158,6 @@ export let ignoreChecks = new Set<string>();
 
 export function shouldNotify(e: { message: Message }): boolean {
   const msg = e.message;
-  console.log(msg);
 
   for (const [name, f] of notificationChecks) {
     if (ignoreChecks.has(name)) {
