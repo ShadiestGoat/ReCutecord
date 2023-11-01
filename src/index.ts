@@ -1,17 +1,41 @@
-import { common, webpack } from "replugged";
+import { Injector, common, components, webpack, types } from "replugged";
 import {
   DiscordNotificationSetting,
   type Message,
   ShouldNotify,
   type ShouldNotifyCheck,
   UserGuildSettingsStore,
+  MsgAuthor,
 } from "./types";
 import { cfg } from "./components/common";
+import { MenuGroupUtil, MenuItemChannel, MenuItemUser } from "./ctxMenu";
+
 const { getByStoreName, getByProps } = webpack;
+const { ContextMenuTypes } = types
 
-export function start(): void {}
+const inject = new Injector()
 
-export function stop(): void {}
+export function start(): void {
+  inject.utils.addMenuItem<{user: MsgAuthor}>(ContextMenuTypes.UserContext, ({ user: { id }}, menu) => {
+    return MenuGroupUtil({
+      id,
+      itemFactory: MenuItemUser,
+      key: "Users"
+    })
+  })
+
+  inject.utils.addMenuItem<{channel: {id: string}}>(ContextMenuTypes.ChannelContext, ({ channel: { id }}, menu) => {
+    return MenuGroupUtil({
+      id,
+      itemFactory: MenuItemChannel,
+      key: "Channels"
+    })
+  })
+}
+
+export function stop(): void {
+  inject.uninjectAll()
+}
 
 function phraseIncludes(phraseBank: string[], content: string): boolean {
   content = content.toLowerCase();
