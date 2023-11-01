@@ -34,3 +34,5 @@ export const cfg = await settings.init<Settings, keyof typeof defaultSettings>(
   "eu.shadygoat.cutecord",
   defaultSettings,
 );
+
+export const watchConf: { channel: string; left: number; user?: string; phrase?: string }[] = [];

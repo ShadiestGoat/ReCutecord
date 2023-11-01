@@ -7,34 +7,88 @@ import {
   UserGuildSettingsStore,
   MsgAuthor,
 } from "./types";
-import { cfg } from "./components/common";
+import { cfg, watchConf } from "./components/common";
 import { MenuGroupUtil, MenuItemChannel, MenuItemUser } from "./ctxMenu";
 
 const { getByStoreName, getByProps } = webpack;
-const { ContextMenuTypes } = types
+const { ContextMenuTypes, ApplicationCommandOptionType } = types;
 
-const inject = new Injector()
+const inject = new Injector();
 
 export function start(): void {
-  inject.utils.addMenuItem<{user: MsgAuthor}>(ContextMenuTypes.UserContext, ({ user: { id }}, menu) => {
-    return MenuGroupUtil({
-      id,
-      itemFactory: MenuItemUser,
-      key: "Users"
-    })
-  })
+  inject.utils.addMenuItem<{ user: MsgAuthor }>(
+    ContextMenuTypes.UserContext,
+    ({ user: { id } }, menu) => {
+      return MenuGroupUtil({
+        id,
+        itemFactory: MenuItemUser,
+        key: "Users",
+      });
+    },
+  );
 
-  inject.utils.addMenuItem<{channel: {id: string}}>(ContextMenuTypes.ChannelContext, ({ channel: { id }}, menu) => {
-    return MenuGroupUtil({
-      id,
-      itemFactory: MenuItemChannel,
-      key: "Channels"
-    })
-  })
+  inject.utils.addMenuItem<{ channel: { id: string } }>(
+    ContextMenuTypes.ChannelContext,
+    ({ channel: { id } }, menu) => {
+      return MenuGroupUtil({
+        id,
+        itemFactory: MenuItemChannel,
+        key: "Channels",
+      });
+    },
+  );
+
+  inject.utils.registerSlashCommand({
+    name: "listen",
+    description: "Add a temporary DND ignorer",
+    options: [
+      {
+        name: "user",
+        description: "Only listen to messages from this user",
+        type: ApplicationCommandOptionType.User,
+      },
+      {
+        name: "phrase",
+        description: "Only listen to messages including this phrase (case insensitive)",
+        type: ApplicationCommandOptionType.String,
+      },
+      {
+        name: "amount",
+        description: "The amount of messages to keep this filter for (default = 1)",
+        type: ApplicationCommandOptionType.Number,
+        min_value: 1,
+      },
+      {
+        name: "channel",
+        description: "Listen to messages in another channel",
+        type: ApplicationCommandOptionType.Channel,
+      },
+    ],
+    executor(i) {
+      const user = i.getValue("user"),
+        phrase = i.getValue("phrase"),
+        left = i.getValue("amount", 1),
+        channel = i.getValue("channel", i.channel.id);
+
+      watchConf.push({
+        channel: channel,
+        left,
+        user,
+        phrase,
+      });
+
+      return {
+        send: false,
+        result: `Listening for messages in <#${channel}>${user ? ` by <@${user}>` : ""}${
+          phrase ? ` including the phrase "${phrase}"` : ""
+        }${left != 1 ? ` (${left} messages)` : ""}`,
+      };
+    },
+  });
 }
 
 export function stop(): void {
-  inject.uninjectAll()
+  inject.uninjectAll();
 }
 
 function phraseIncludes(phraseBank: string[], content: string): boolean {
@@ -119,6 +173,54 @@ function checkFactory(prefix: "good" | "bad"): Array<[string, ShouldNotifyCheck]
  * If the notification checks reaches the end without a conclusive result (ie. all the checks return a CONTINUE (2)), then the user's status & channel/category/guild notification settings will be used as a fallback.
  */
 export let notificationChecks: Array<[string, ShouldNotifyCheck]> = [
+  [
+    "tmpListen",
+    (msg) => {
+      /** listener index, points */
+      const listeners = watchConf.map((v, i) => {
+        if (v.channel != msg.channel_id) {
+          return false
+        }
+        if (v.user && v.user != msg.author.id) {
+          return false
+        }
+        if (v.phrase && !msg.content.toLowerCase().includes(v.phrase.toLowerCase())) {
+          return false
+        }
+
+        let amt = 0
+
+        if (v.user) {
+          amt++
+        }
+
+        if (v.phrase) {
+          amt += 2
+        }
+
+        return [i, amt]
+      }).filter(v => v) as [number, number][]
+
+      listeners.sort((a, b) => a[1] - b[1])
+      
+      if (listeners.length == 0) {
+        return ShouldNotify.CONTINUE
+      }
+
+      const listenerID = listeners[0][0]
+
+      const conf = watchConf[listenerID]
+      conf.left--
+
+      if (conf.left <= 0) {
+        watchConf.splice(listenerID, 1)
+      } else {
+        watchConf[listenerID] = conf
+      }
+
+      return ShouldNotify.MUST_NOTIFY
+    }
+  ],
   [
     "selfException",
     (msg) =>
