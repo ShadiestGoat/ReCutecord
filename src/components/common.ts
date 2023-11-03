@@ -37,4 +37,5 @@ export const cfg = await settings.init<Settings, keyof typeof defaultSettings>(
   defaultSettings,
 );
 
-export const watchConf: { channel: string; left: number; user?: string; phrase?: string }[] = [];
+export const watchConf: Array<{ channel: string; left: number; user?: string; phrase?: string }> =
+  [];

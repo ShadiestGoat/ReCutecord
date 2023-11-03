@@ -88,7 +88,12 @@ export function Settings(): React.ReactElement {
           title="Bad Phrases"
         />
       </Summary>
-      <ButtonItem color={Button.Colors.RED} note={`Currently Active: ${watchConf.length}`} hideBorder button="Remove" onClick={() => console.log("Pressed!")}>
+      <ButtonItem
+        color={Button.Colors.RED}
+        note={`Currently Active: ${watchConf.length}`}
+        hideBorder
+        button="Remove"
+        onClick={() => console.log("Pressed!")}>
         <Text variant="text-lg/normal" selectable>
           Remove All Temporary Listeners
         </Text>

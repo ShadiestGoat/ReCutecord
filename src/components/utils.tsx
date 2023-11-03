@@ -58,14 +58,14 @@ export function OptionPlus({
   const [editLoc, setEditLoc] = useState(-1);
   const [editCache, setEditCache] = useState("");
 
-  const updateValue = (i: number) => {
+  const updateValue = (i: number): void => {
     value[i] = editCache;
     setEditLoc(-1);
     setEditCache("");
     onChange([...value]);
   };
 
-  const addValue = () => {
+  const addValue = (): void => {
     value.push(editCache);
     setEditLoc(-1);
     setEditCache("");

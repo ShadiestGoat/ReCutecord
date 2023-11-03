@@ -1,11 +1,10 @@
-import { Injector, common, components, webpack, types } from "replugged";
+import { Injector, common, types } from "replugged";
 import {
   DiscordNotificationSetting,
   type Message,
+  MsgAuthor,
   ShouldNotify,
   type ShouldNotifyCheck,
-  UserGuildSettingsStore,
-  MsgAuthor,
 } from "./types";
 import { cfg, watchConf } from "./components/common";
 import { MenuGroupUtil, MenuItemChannel, MenuItemUser } from "./ctxMenu";
@@ -18,7 +17,8 @@ const inject = new Injector();
 export function start(): void {
   inject.utils.addMenuItem<{ user: MsgAuthor }>(
     ContextMenuTypes.UserContext,
-    ({ user: { id } }, menu) => {
+    ({ user: { id } }) => {
+      // eslint-disable-next-line new-cap
       return MenuGroupUtil({
         id,
         itemFactory: MenuItemUser,
@@ -29,7 +29,8 @@ export function start(): void {
 
   inject.utils.addMenuItem<{ channel: { id: string } }>(
     ContextMenuTypes.ChannelContext,
-    ({ channel: { id } }, menu) => {
+    ({ channel: { id } }) => {
+      // eslint-disable-next-line new-cap
       return MenuGroupUtil({
         id,
         itemFactory: MenuItemChannel,
@@ -56,6 +57,7 @@ export function start(): void {
         name: "amount",
         description: "The amount of messages to keep this filter for (default = 1)",
         type: ApplicationCommandOptionType.Number,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         min_value: 1,
       },
       {
@@ -71,7 +73,7 @@ export function start(): void {
         channel = i.getValue("channel", i.channel.id);
 
       watchConf.push({
-        channel: channel,
+        channel,
         left,
         user,
         phrase,
@@ -184,49 +186,51 @@ export let notificationChecks: Array<[string, ShouldNotifyCheck]> = [
     "tmpListen",
     (msg) => {
       /** listener index, points */
-      const listeners = watchConf.map((v, i) => {
-        if (v.channel != msg.channel_id) {
-          return false
-        }
-        if (v.user && v.user != msg.author.id) {
-          return false
-        }
-        if (v.phrase && !msg.content.toLowerCase().includes(v.phrase.toLowerCase())) {
-          return false
-        }
+      const listeners = watchConf
+        .map((v, i) => {
+          if (v.channel != msg.channel_id) {
+            return false;
+          }
+          if (v.user && v.user != msg.author.id) {
+            return false;
+          }
+          if (v.phrase && !msg.content.toLowerCase().includes(v.phrase.toLowerCase())) {
+            return false;
+          }
 
-        let amt = 0
+          let amt = 0;
 
-        if (v.user) {
-          amt++
-        }
+          if (v.user) {
+            amt++;
+          }
 
-        if (v.phrase) {
-          amt += 2
-        }
+          if (v.phrase) {
+            amt += 2;
+          }
 
-        return [i, amt]
-      }).filter(v => v) as [number, number][]
+          return [i, amt];
+        })
+        .filter((v) => v) as Array<[number, number]>;
 
-      listeners.sort((a, b) => a[1] - b[1])
-      
+      listeners.sort((a, b) => a[1] - b[1]);
+
       if (listeners.length == 0) {
-        return ShouldNotify.CONTINUE
+        return ShouldNotify.CONTINUE;
       }
 
-      const listenerID = listeners[0][0]
+      const listenerID = listeners[0][0];
 
-      const conf = watchConf[listenerID]
-      conf.left--
+      const conf = watchConf[listenerID];
+      conf.left--;
 
       if (conf.left <= 0) {
-        watchConf.splice(listenerID, 1)
+        watchConf.splice(listenerID, 1);
       } else {
-        watchConf[listenerID] = conf
+        watchConf[listenerID] = conf;
       }
 
-      return ShouldNotify.MUST_NOTIFY
-    }
+      return ShouldNotify.MUST_NOTIFY;
+    },
   ],
   [
     "focusedException",
@@ -241,7 +245,11 @@ export let notificationChecks: Array<[string, ShouldNotifyCheck]> = [
     "respectMutes",
     (msg) => {
       // self explanatory - check if the user already muted the guild, category, or channel
-      if (msg.guild_id && cfg.get("respectMutedGuilds") && userGuildSettings.isMuted(msg.guild_id)) {
+      if (
+        msg.guild_id &&
+        cfg.get("respectMutedGuilds") &&
+        userGuildSettings.isMuted(msg.guild_id)
+      ) {
         return ShouldNotify.DONT_NOTIFY;
       }
 
@@ -303,11 +311,17 @@ export function shouldNotify(e: { message: Message }): boolean {
     return true;
   }
 
-  let chanMsgNotifications = userGuildSettings.getChannelMessageNotifications(msg.guild_id, msg.channel_id);
+  let chanMsgNotifications = userGuildSettings.getChannelMessageNotifications(
+    msg.guild_id,
+    msg.channel_id,
+  );
   if (chanMsgNotifications == DiscordNotificationSetting.INHERIT) {
     const chan = common.channels.getBasicChannel(msg.channel_id);
     if (chan?.parent_id) {
-      chanMsgNotifications = userGuildSettings.getChannelMessageNotifications(msg.guild_id, chan.parent_id);
+      chanMsgNotifications = userGuildSettings.getChannelMessageNotifications(
+        msg.guild_id,
+        chan.parent_id,
+      );
     }
     if (chanMsgNotifications == DiscordNotificationSetting.INHERIT) {
       chanMsgNotifications = userGuildSettings.getMessageNotifications(msg.guild_id);
@@ -339,4 +353,4 @@ export function shouldNotify(e: { message: Message }): boolean {
 }
 
 export { Settings } from "./components/settings";
-export { call } from "./callStore"
+export { call } from "./callStore";

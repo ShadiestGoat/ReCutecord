@@ -14,13 +14,13 @@ export default [
     replacements: [
       ["getIncomingCalls", "\\.from\\((.+?)\\.values", "[]"],
       ["getIncomingCallChannelIds", ":(.+?)", "new Set()"],
-      ["getFirstIncomingCallId",":(.+?)\.values", "null"],
-      ["hasIncomingCalls", "&&(.+?)\\.size", "0"]
+      ["getFirstIncomingCallId", ":(.+?).values", "null"],
+      ["hasIncomingCalls", "&&(.+?)\\.size", "0"],
     ].map(([func, reg, fallback]) => {
       return {
         match: RegExp(`${func}\\(\\)\\{.*?${reg}.*?\\}`, "s"),
-        replace: `${func}(){const plug = replugged.plugins.plugins.get("eu.shadygoat.cutecord"); return plug?.exports ? plug.exports.call.${func}($1) : ${fallback}}`
-      }
-    })
-  }
+        replace: `${func}(){const plug = replugged.plugins.plugins.get("eu.shadygoat.cutecord"); return plug?.exports ? plug.exports.call.${func}($1) : ${fallback}}`,
+      };
+    }),
+  },
 ];
