@@ -11,6 +11,8 @@ A Replugged version of Cutecord! Allow certain users, channels, guilds, or even 
 - Sensitive fallbacks based on status
 - Separate muted guilds, channels and categories
 - Toggle focused channel exception
+- Hear calls from specific people/channels
+- Add temporary exceptions
 
 ## How it works
 
