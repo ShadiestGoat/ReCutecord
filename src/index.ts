@@ -174,6 +174,13 @@ function checkFactory(prefix: "good" | "bad"): Array<[string, ShouldNotifyCheck]
  */
 export let notificationChecks: Array<[string, ShouldNotifyCheck]> = [
   [
+    "selfException",
+    (msg) =>
+      msg.author.id == common.users.getCurrentUser().id
+        ? ShouldNotify.DONT_NOTIFY
+        : ShouldNotify.CONTINUE,
+  ],
+  [
     "tmpListen",
     (msg) => {
       /** listener index, points */
@@ -220,13 +227,6 @@ export let notificationChecks: Array<[string, ShouldNotifyCheck]> = [
 
       return ShouldNotify.MUST_NOTIFY
     }
-  ],
-  [
-    "selfException",
-    (msg) =>
-      msg.author.id == common.users.getCurrentUser().id
-        ? ShouldNotify.DONT_NOTIFY
-        : ShouldNotify.CONTINUE,
   ],
   [
     "focusedException",
@@ -356,3 +356,4 @@ export function shouldNotify(e: { message: Message }): boolean {
 }
 
 export { Settings } from "./components/settings";
+export { call } from "./callStore"
