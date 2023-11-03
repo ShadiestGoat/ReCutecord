@@ -12,6 +12,11 @@ export function Settings(): React.ReactElement {
       </Notice>
 
       <SwitchItem
+        {...util.useSetting(cfg, "respectMutedChannelCalls", defaultSettings.respectMutedChannels)}
+        note="Consider muted channels (groups & DMs) as bad channels for calls">
+        Respect Muted Call Channels
+      </SwitchItem>
+      <SwitchItem
         {...util.useSetting(cfg, "respectMutedChannels", defaultSettings.respectMutedChannels)}
         note="Consider muted channels as part of the bad channels">
         Respect Muted Channels

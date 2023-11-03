@@ -1,3 +1,4 @@
+import { Channel } from "discord-types/general";
 import { Store } from "replugged/dist/renderer/modules/common/flux";
 
 /* eslint-disable @typescript-eslint/naming-convention */
@@ -45,6 +46,7 @@ export type Message = MessageBase & {
   referenced_message?: RefMessage;
 };
 
+export type ShouldCallCheck = (chanID: string | Channel) => ShouldNotify;
 export type ShouldNotifyCheck = (msg: Message) => ShouldNotify;
 export enum ShouldNotify {
   /**
@@ -78,4 +80,14 @@ export interface UserGuildSettingsStore extends Store {
 
   isSuppressRolesEnabled(guildID: string): boolean;
   isSuppressEveryoneEnabled(guildID: string): boolean;
+}
+
+export interface Call {
+  channelId: string;
+  messageId: string;
+}
+
+export interface CallStore extends Store {
+  getCall(chanID: string): Call;
+  getMessageId(chanID: string): string;
 }

@@ -8,6 +8,7 @@ export type SettingsArray = Record<SettingUtil<SettingsArrayKeys>, string[]>;
 export type Settings = Partial<
   SettingsString &
     SettingsArray & {
+      respectMutedChannelCalls: boolean;
       respectMutedChannels: boolean;
       respectMutedCategories: boolean;
       respectMutedGuilds: boolean;
@@ -28,6 +29,7 @@ export const defaultSettings = {
   respectMutedCategories: true,
   respectMutedChannels: true,
   respectMutedGuilds: true,
+  respectMutedChannelCalls: true,
 } satisfies Settings;
 
 export const cfg = await settings.init<Settings, keyof typeof defaultSettings>(
