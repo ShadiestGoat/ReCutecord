@@ -9,8 +9,8 @@ import {
 } from "./types";
 import { cfg, watchConf } from "./components/common";
 import { MenuGroupUtil, MenuItemChannel, MenuItemUser } from "./ctxMenu";
+import { statusMod, userGuildSettings } from "./common";
 
-const { getByStoreName, getByProps } = webpack;
 const { ContextMenuTypes, ApplicationCommandOptionType } = types;
 
 const inject = new Injector();
@@ -240,22 +240,15 @@ export let notificationChecks: Array<[string, ShouldNotifyCheck]> = [
   [
     "respectMutes",
     (msg) => {
-      const store = getByStoreName<UserGuildSettingsStore>("UserGuildSettingsStore");
-
-      // to make the editor happy <3
-      if (!store) {
-        return ShouldNotify.CONTINUE;
-      }
-
       // self explanatory - check if the user already muted the guild, category, or channel
-      if (msg.guild_id && cfg.get("respectMutedGuilds") && store.isMuted(msg.guild_id)) {
+      if (msg.guild_id && cfg.get("respectMutedGuilds") && userGuildSettings.isMuted(msg.guild_id)) {
         return ShouldNotify.DONT_NOTIFY;
       }
 
       if (
         msg.guild_id &&
         cfg.get("respectMutedCategories") &&
-        store.isCategoryMuted(msg.guild_id, msg.channel_id)
+        userGuildSettings.isCategoryMuted(msg.guild_id, msg.channel_id)
       ) {
         return ShouldNotify.DONT_NOTIFY;
       }
@@ -265,7 +258,7 @@ export let notificationChecks: Array<[string, ShouldNotifyCheck]> = [
         if (msg.guild_id) {
           gID = msg.guild_id;
         }
-        if (store.isChannelMuted(gID, msg.channel_id)) {
+        if (userGuildSettings.isChannelMuted(gID, msg.channel_id)) {
           return ShouldNotify.DONT_NOTIFY;
         }
       }
@@ -299,10 +292,7 @@ export function shouldNotify(e: { message: Message }): boolean {
     }
   }
 
-  const status = getByProps<{ getStatus: () => string }, "getStatus" | "getActivities">([
-    "getStatus",
-    "getActivities",
-  ])?.getStatus();
+  const status = statusMod.getStatus();
 
   // If the user is online or idle etc, then there is no need to do good checks - always fire the notification!
   if (status == "dnd") {
@@ -313,21 +303,14 @@ export function shouldNotify(e: { message: Message }): boolean {
     return true;
   }
 
-  // now, re-implement discord notification settings
-  const store = getByStoreName<UserGuildSettingsStore>("UserGuildSettingsStore");
-
-  if (!store) {
-    return false;
-  }
-
-  let chanMsgNotifications = store.getChannelMessageNotifications(msg.guild_id, msg.channel_id);
+  let chanMsgNotifications = userGuildSettings.getChannelMessageNotifications(msg.guild_id, msg.channel_id);
   if (chanMsgNotifications == DiscordNotificationSetting.INHERIT) {
     const chan = common.channels.getBasicChannel(msg.channel_id);
     if (chan?.parent_id) {
-      chanMsgNotifications = store.getChannelMessageNotifications(msg.guild_id, chan.parent_id);
+      chanMsgNotifications = userGuildSettings.getChannelMessageNotifications(msg.guild_id, chan.parent_id);
     }
     if (chanMsgNotifications == DiscordNotificationSetting.INHERIT) {
-      chanMsgNotifications = store.getMessageNotifications(msg.guild_id);
+      chanMsgNotifications = userGuildSettings.getMessageNotifications(msg.guild_id);
     }
   }
 
@@ -346,7 +329,7 @@ export function shouldNotify(e: { message: Message }): boolean {
   }
 
   if (
-    !store.isSuppressRolesEnabled(msg.guild_id) &&
+    !userGuildSettings.isSuppressRolesEnabled(msg.guild_id) &&
     member.roles.find((v) => msg.mention_roles.includes(v))
   ) {
     return true;
