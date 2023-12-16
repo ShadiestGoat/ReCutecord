@@ -12,14 +12,8 @@ function addValue(add: "good" | "bad", key: SettingsStringKeys, val: string): vo
   const rmKey = (rm + key) as SettingUtil<SettingsStringKeys>;
   const addKey = (add + key) as SettingUtil<SettingsStringKeys>;
 
-  cfg.set(
-    rmKey,
-    cfg
-      .get(rmKey)
-      .split(" ")
-      .filter((v) => v != val)
-      .join(" "),
-  );
+  rmValue(rmKey, val)
+
   cfg.set(
     addKey,
     [
@@ -29,6 +23,17 @@ function addValue(add: "good" | "bad", key: SettingsStringKeys, val: string): vo
         .filter((v) => v != val),
       val,
     ].join(" "),
+  );
+}
+
+function rmValue(key: SettingUtil<SettingsStringKeys>, val: string): void {
+  cfg.set(
+    key,
+    cfg
+      .get(key)
+      .split(" ")
+      .filter((v) => v != val)
+      .join(" "),
   );
 }
 
@@ -42,14 +47,24 @@ export interface CustomMenuItemProps {
   good: boolean;
 }
 
+function actionFactory(key: SettingsStringKeys, good: boolean, add: boolean, id: string): () => void {
+  return () => {
+    const goodArg = good ? "good" : "bad"
+
+    if (add) {
+      addValue(goodArg, key, id);
+    } else {
+      rmValue(`${goodArg}${key}`, id)
+    }
+  }
+}
+
 export const MenuItemUser = ({ id, add, good }: CustomMenuItemProps): React.ReactElement => {
   return (
     <MenuItem
       id={makeID(add, good, "user")}
       label={`Make${add ? "" : " not"} ${good ? "Cutie" : "Meanie"}`}
-      action={() => {
-        addValue(good ? "good" : "bad", "Users", id);
-      }}
+      action={actionFactory("Users", good, add, id)}
     />
   );
 };
@@ -59,9 +74,7 @@ export const MenuItemChannel = ({ id, add, good }: CustomMenuItemProps): React.R
     <MenuItem
       id={makeID(add, good, "channel")}
       label={add ? `${!good ? "Don't " : ""}Receive Notifs` : "Default Notif Settings"}
-      action={() => {
-        addValue(good ? "good" : "bad", "Channels", id);
-      }}
+      action={actionFactory("Channels", good, add, id)}
     />
   );
 };
