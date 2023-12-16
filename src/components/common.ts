@@ -2,19 +2,17 @@ import { settings } from "replugged";
 
 export type SettingsArrayKeys = "Phrases";
 export type SettingsStringKeys = "Users" | "Channels" | "Guilds";
+export type SettingsBools =
+  | "respectMutedChannelCalls"
+  | "respectMutedChannels"
+  | "respectMutedCategories"
+  | "respectMutedGuilds"
+  | "notifyIfFocused"
+  | "pingOnNotif";
 export type SettingUtil<T extends string> = `good${T}` | `bad${T}`;
 export type SettingsString = Record<SettingUtil<SettingsStringKeys>, string>;
 export type SettingsArray = Record<SettingUtil<SettingsArrayKeys>, string[]>;
-export type Settings = Partial<
-  SettingsString &
-    SettingsArray & {
-      respectMutedChannelCalls: boolean;
-      respectMutedChannels: boolean;
-      respectMutedCategories: boolean;
-      respectMutedGuilds: boolean;
-      notifyIfFocused: boolean;
-    }
->;
+export type Settings = Partial<SettingsString & SettingsArray & Record<SettingsBools, boolean>>;
 
 export const defaultSettings = {
   badChannels: "",
@@ -30,6 +28,7 @@ export const defaultSettings = {
   respectMutedChannels: true,
   respectMutedGuilds: true,
   respectMutedChannelCalls: true,
+  pingOnNotif: true,
 } satisfies Settings;
 
 export const cfg = await settings.init<Settings, keyof typeof defaultSettings>(

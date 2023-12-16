@@ -36,6 +36,11 @@ export function Settings(): React.ReactElement {
         note="If enabled, this would send a notification even if you are viewing the current channel">
         Notify If Focused
       </SwitchItem>
+      <SwitchItem
+        {...util.useSetting(cfg, "pingOnNotif", defaultSettings.pingOnNotif)}
+        note="If enabled, this would use the ping visual indicator on messages marked for notifs">
+        Fake Visual Ping
+      </SwitchItem>
 
       <Summary title="Cuties/Meanies">
         <Option
