@@ -260,21 +260,24 @@ function rawMsgNotifLogic(msg: Message): boolean {
   return false;
 }
 
-const notifCache = new Map<string, {
-  createdAt: number,
-  shouldNotify: boolean
-}>()
+const notifCache = new Map<
+  string,
+  {
+    createdAt: number;
+    shouldNotify: boolean;
+  }
+>();
 
 export function msgNotifLogic(msg: Message): boolean {
   if (notifCache.has(msg.id)) {
-    return notifCache.get(msg.id)!.shouldNotify
+    return notifCache.get(msg.id)!.shouldNotify;
   }
-  
-  const shouldNotify = rawMsgNotifLogic(msg)
+
+  const shouldNotify = rawMsgNotifLogic(msg);
   notifCache.set(msg.id, {
     createdAt: Date.now(),
     shouldNotify,
-  })
+  });
 
-  return shouldNotify
+  return shouldNotify;
 }

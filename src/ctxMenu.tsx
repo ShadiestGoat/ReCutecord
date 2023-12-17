@@ -12,7 +12,7 @@ function addValue(add: "good" | "bad", key: SettingsStringKeys, val: string): vo
   const rmKey = (rm + key) as SettingUtil<SettingsStringKeys>;
   const addKey = (add + key) as SettingUtil<SettingsStringKeys>;
 
-  rmValue(rmKey, val)
+  rmValue(rmKey, val);
 
   cfg.set(
     addKey,
@@ -47,16 +47,21 @@ export interface CustomMenuItemProps {
   good: boolean;
 }
 
-function actionFactory(key: SettingsStringKeys, good: boolean, add: boolean, id: string): () => void {
+function actionFactory(
+  key: SettingsStringKeys,
+  good: boolean,
+  add: boolean,
+  id: string,
+): () => void {
   return () => {
-    const goodArg = good ? "good" : "bad"
+    const goodArg = good ? "good" : "bad";
 
     if (add) {
       addValue(goodArg, key, id);
     } else {
-      rmValue(`${goodArg}${key}`, id)
+      rmValue(`${goodArg}${key}`, id);
     }
-  }
+  };
 }
 
 export const MenuItemUser = ({ id, add, good }: CustomMenuItemProps): React.ReactElement => {

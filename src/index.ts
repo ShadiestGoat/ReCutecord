@@ -1,17 +1,14 @@
 import { Injector, Logger, types, webpack } from "replugged";
-import {
-  type Message,
-  MsgAuthor,
-} from "./types";
+import { type Message, MsgAuthor } from "./types";
 import { cfg, watchConf } from "./components/common";
 import { MenuGroupUtil, MenuItemChannel, MenuItemUser } from "./ctxMenu";
 import { msgNotifLogic } from "./chatStore";
 
 const { ContextMenuTypes, ApplicationCommandOptionType } = types;
-const { getByProps } = webpack
+const { getByProps } = webpack;
 
 const inject = new Injector();
-const logger = Logger.plugin("Cutecord")
+const logger = Logger.plugin("Cutecord");
 
 export function start(): void {
   inject.utils.addMenuItem<{ user: MsgAuthor }>(
@@ -39,26 +36,26 @@ export function start(): void {
   );
 
   const mentionedMod = getByProps<{
-    isRawMessageMentioned: (e: {rawMessage: Message}) => boolean,
-    isMentioned: () => boolean,
-    default: (e: {message: Message}) => boolean,
-  }>("isRawMessageMentioned")
+    isRawMessageMentioned: (e: { rawMessage: Message }) => boolean;
+    isMentioned: () => boolean;
+    default: (e: { message: Message }) => boolean;
+  }>("isRawMessageMentioned");
 
   if (mentionedMod) {
     inject.after(mentionedMod, "isRawMessageMentioned", (props, res) => {
       if (!cfg.get("pingOnNotif")) {
-        return res
+        return res;
       }
-      return msgNotifLogic(props[0].rawMessage) || res
-    })
+      return msgNotifLogic(props[0].rawMessage) || res;
+    });
     inject.instead(mentionedMod, "default", (props, og) => {
       if (!cfg.get("pingOnNotif")) {
-        return og(...props)
+        return og(...props);
       }
-      return msgNotifLogic(props[0].message) || og(...props)
-    })
+      return msgNotifLogic(props[0].message) || og(...props);
+    });
   } else {
-    logger.error("Mention mod not found")
+    logger.error("Mention mod not found");
   }
 
   inject.utils.registerSlashCommand({
@@ -116,13 +113,10 @@ export function stop(): void {
 }
 
 export function shouldNotify(e: { message: Message }): boolean {
-  return msgNotifLogic(e.message)
+  return msgNotifLogic(e.message);
 }
 
-export {
-  ignoreChecks,
-  notificationChecks,
-} from "./chatStore"
+export { ignoreChecks, notificationChecks } from "./chatStore";
 
 export { Settings } from "./components/settings";
 export { call } from "./callStore";
