@@ -17,7 +17,7 @@ let stopDoingFunnyBusiness = false;
 
 function doFunnyBusiness(): void {
   if (stopDoingFunnyBusiness) {
-    stopDoingFunnyBusiness = false
+    stopDoingFunnyBusiness = false;
     return;
   }
 
