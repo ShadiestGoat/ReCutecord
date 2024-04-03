@@ -2,7 +2,7 @@ import { Channel } from "discord-types/general";
 import { common, webpack } from "replugged";
 import { ShouldCallCheck, ShouldNotify, UserGuildSettingsStore } from "./types";
 import { cfg } from "./components/common";
-import { callStore, statusMod } from "./common";
+import { Status, callStore, getStatus, streamCheck } from "./common";
 
 const { getByStoreName } = webpack;
 const { channels, messages } = common;
@@ -20,6 +20,7 @@ function processChannel(chanInput: string | Channel): Channel {
  * Same as the notifyChecks, but for calls. The functions have 1 argument, which is the channel id.
  */
 export let callChecks: Array<[string, ShouldCallCheck]> = [
+  streamCheck as [string, ShouldCallCheck],
   [
     "respectChannels",
     (chanInput) => {
@@ -100,31 +101,29 @@ function shouldCall(chanInput: string | Channel, isDND: boolean): boolean {
 // Thanks a lot, @Tharki-God and @lexisother
 export const call = {
   getIncomingCalls(m: Map<string, { channel: Channel }>) {
-    const isDND = statusMod.getStatus() == "dnd";
+    const isDND = getStatus() == Status.DND;
 
     return Array.from(m.values()).filter((v) => {
       return shouldCall(v.channel, isDND);
     });
   },
   getIncomingCallChannelIds(s: CallSet) {
-    const isDND = statusMod.getStatus() == "dnd";
+    const isDND = getStatus() == Status.DND;
 
     return new Set(
       Array.from(s).filter((v) => {
-        console.log("getIncomingCallChannelIds", v);
         return shouldCall(v, isDND);
       }),
     );
   },
   getFirstIncomingCallId(s: CallSet) {
-    const isDND = statusMod.getStatus() == "dnd";
+    const isDND = getStatus() == Status.DND;
 
     while (true) {
       const v = s.values().next();
       if (v.done) {
         return null;
       }
-      console.log("getFirstIncomingCallId", v.done);
       if (shouldCall(v.value, isDND)) {
         return v.value;
       }
@@ -132,7 +131,7 @@ export const call = {
   },
   hasIncomingCalls(s: CallSet) {
     const arr = Array.from(s);
-    const isDND = statusMod.getStatus() == "dnd";
+    const isDND = getStatus() == Status.DND;
 
     for (const v of arr) {
       if (shouldCall(v, isDND)) {

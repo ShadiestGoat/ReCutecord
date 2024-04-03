@@ -1,7 +1,7 @@
 import { common } from "replugged";
 import { cfg, watchConf } from "./components/common";
 import { DiscordNotificationSetting, Message, ShouldNotify, ShouldNotifyCheck } from "./types";
-import { statusMod, userGuildSettings } from "./common";
+import { Status, getStatus, streamCheck, userGuildSettings } from "./common";
 
 function phraseIncludes(phraseBank: string[], content: string): boolean {
   content = content.toLowerCase();
@@ -92,6 +92,7 @@ export let notificationChecks: Array<[string, ShouldNotifyCheck]> = [
         ? ShouldNotify.DONT_NOTIFY
         : ShouldNotify.CONTINUE,
   ],
+  streamCheck as [string, ShouldNotifyCheck],
   [
     "tmpListen",
     (msg) => {
@@ -202,16 +203,15 @@ function rawMsgNotifLogic(msg: Message): boolean {
 
     switch (out) {
       case ShouldNotify.DONT_NOTIFY:
+        console.log(name)
         return false;
       case ShouldNotify.MUST_NOTIFY:
         return true;
     }
   }
 
-  const status = statusMod.getStatus();
-
   // If the user is online or idle etc, then there is no need to do good checks - always fire the notification!
-  if (status == "dnd") {
+  if (getStatus() == Status.DND) {
     return false;
   }
 

@@ -37,6 +37,11 @@ export function Settings(): React.ReactElement {
         Notify If Focused
       </SwitchItem>
       <SwitchItem
+        {...util.useSetting(cfg, "noNotifsWhenStreaming", defaultSettings.noNotifsWhenStreaming)}
+        note="If enabled, will not notify you no matter what if you are currently streaming">
+        Don't notify when streaming
+      </SwitchItem>
+      <SwitchItem
         {...util.useSetting(cfg, "pingOnNotif", defaultSettings.pingOnNotif)}
         note="If enabled, this would use the ping visual indicator on messages marked for notifs">
         Fake Visual Ping

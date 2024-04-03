@@ -8,7 +8,8 @@ export type SettingsBools =
   | "respectMutedCategories"
   | "respectMutedGuilds"
   | "notifyIfFocused"
-  | "pingOnNotif";
+  | "pingOnNotif"
+  | "noNotifsWhenStreaming";
 export type SettingUtil<T extends string> = `good${T}` | `bad${T}`;
 export type SettingsString = Record<SettingUtil<SettingsStringKeys>, string>;
 export type SettingsArray = Record<SettingUtil<SettingsArrayKeys>, string[]>;
@@ -29,6 +30,7 @@ export const defaultSettings = {
   respectMutedGuilds: true,
   respectMutedChannelCalls: true,
   pingOnNotif: true,
+  noNotifsWhenStreaming: true,
 } satisfies Settings;
 
 export const cfg = await settings.init<Settings, keyof typeof defaultSettings>(
