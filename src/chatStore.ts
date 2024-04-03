@@ -203,7 +203,6 @@ function rawMsgNotifLogic(msg: Message): boolean {
 
     switch (out) {
       case ShouldNotify.DONT_NOTIFY:
-        console.log(name)
         return false;
       case ShouldNotify.MUST_NOTIFY:
         return true;
