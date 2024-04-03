@@ -2,13 +2,28 @@ import { Injector, Logger, types, webpack } from "replugged";
 import { type Message, MsgAuthor } from "./types";
 import { cfg, watchConf } from "./components/common";
 import { MenuGroupUtil, MenuItemChannel, MenuItemUser } from "./ctxMenu";
-import { msgNotifLogic } from "./chatStore";
+import { cleanMsgNotifCache, msgNotifLogic } from "./chatStore";
 
 const { ContextMenuTypes, ApplicationCommandOptionType } = types;
 const { getByProps } = webpack;
 
 const inject = new Injector();
 const logger = Logger.plugin("Cutecord");
+
+// 5 mins
+const FUNNY_BUSINESS_FREQUENCY = 5 * 1000 * 60;
+
+let stopDoingFunnyBusiness = false;
+
+function doFunnyBusiness(): void {
+  if (stopDoingFunnyBusiness) {
+    return;
+  }
+
+  cleanMsgNotifCache();
+
+  setTimeout(doFunnyBusiness, FUNNY_BUSINESS_FREQUENCY);
+}
 
 export function start(): void {
   inject.utils.addMenuItem<{ user: MsgAuthor }>(
@@ -106,10 +121,17 @@ export function start(): void {
       };
     },
   });
+
+  if (stopDoingFunnyBusiness) {
+    stopDoingFunnyBusiness = false;
+  } else {
+    setTimeout(doFunnyBusiness, FUNNY_BUSINESS_FREQUENCY);
+  }
 }
 
 export function stop(): void {
   inject.uninjectAll();
+  stopDoingFunnyBusiness = true;
 }
 
 export function shouldNotify(e: { message: Message }): boolean {

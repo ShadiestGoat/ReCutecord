@@ -268,6 +268,17 @@ const notifCache = new Map<
   }
 >();
 
+const CACHE_TTL = 10 * 1000 * 60;
+
+/** Period job for cleaning out stale notification caches */
+export function cleanMsgNotifCache(): void {
+  notifCache.forEach((v, k) => {
+    if (Date.now() - v.createdAt > CACHE_TTL) {
+      notifCache.delete(k);
+    }
+  });
+}
+
 export function msgNotifLogic(msg: Message): boolean {
   if (notifCache.has(msg.id)) {
     return notifCache.get(msg.id)!.shouldNotify;
