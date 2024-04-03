@@ -98,7 +98,9 @@ export function Settings(): React.ReactElement {
         note={`Currently Active: ${watchConf.length}`}
         hideBorder
         button="Remove"
-        onClick={() => console.log("Pressed!")}>
+        onClick={() => {
+          watchConf.splice(0, watchConf.length);
+        }}>
         <Text variant="text-lg/normal" selectable>
           Remove All Temporary Listeners
         </Text>
