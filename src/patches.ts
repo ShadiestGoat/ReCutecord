@@ -5,7 +5,7 @@ export default [
     replacements: [
       {
         match: /\.isBroadcastChannel\(\)\)return!1.+?disableNotifications\)/s,
-        replace: `.isBroadcastChannel() || !replugged.plugins.plugins.get("eu.shadygoat.cutecord").exports.shouldNotify(arguments[0]))`,
+        replace: `.isBroadcastChannel() || !(replugged.plugins.plugins.get("eu.shadygoat.cutecord").exports?.shouldNotify(arguments[0]) ?? false))`,
       },
     ],
   },
