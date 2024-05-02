@@ -1,12 +1,18 @@
+const PLUGIN = `replugged.plugins.plugins.get("eu.shadygoat.cutecord")`
+
 export default [
   {
     // &&p.getTextChatNotificationMode()===G.Ypu.ENABLED&&!N.Z.disableNotifications
     find: /\.getTextChatNotificationMode.+?\.disableNotifications/,
     replacements: [
       {
-        match: /\.isBroadcastChannel\(\)\)return!1.+?disableNotifications\)/s,
-        replace: `.isBroadcastChannel() || !(replugged.plugins.plugins.get("eu.shadygoat.cutecord").exports?.shouldNotify(arguments[0]) ?? false))`,
+        match: /\.isBroadcastChannel\(\)\)return!1.+?return!1/s,
+        replace: `.isBroadcastChannel() || !(${PLUGIN}.exports?.shouldNotify(arguments[0]) ?? false))return!1`,
       },
+      {
+        match: /void 0;.+?\.playSound.+?\).+?return!1.+?disableNotifications\)return!1;/,
+        replace: "void 0;"
+      }
     ],
   },
   {
@@ -19,7 +25,7 @@ export default [
     ].map(([func, reg, fallback]) => {
       return {
         match: RegExp(`${func}\\(\\)\\{.*?${reg}.*?\\}`, "s"),
-        replace: `${func}(){const plug = replugged.plugins.plugins.get("eu.shadygoat.cutecord"); return plug?.exports ? plug.exports.call.${func}($1) : ${fallback}}`,
+        replace: `${func}(){const plug = ${PLUGIN}; return plug?.exports ? plug.exports.call.${func}($1) : ${fallback}}`,
       };
     }),
   },
