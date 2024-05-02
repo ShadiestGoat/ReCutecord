@@ -1,4 +1,4 @@
-const PLUGIN = `replugged.plugins.plugins.get("eu.shadygoat.cutecord")`
+const PLUGIN = `replugged.plugins.plugins.get("eu.shadygoat.cutecord")`;
 
 export default [
   {
@@ -11,8 +11,8 @@ export default [
       },
       {
         match: /void 0;.+?\.playSound.+?\).+?return!1.+?disableNotifications\)return!1;/,
-        replace: "void 0;"
-      }
+        replace: "void 0;",
+      },
     ],
   },
   {
