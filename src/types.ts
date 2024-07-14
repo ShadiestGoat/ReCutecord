@@ -26,6 +26,7 @@ interface MessageBase {
   content: string;
   embeds: [];
   mention_everyone: boolean;
+  mentioned: boolean;
   /**
    * List of role ids
    */

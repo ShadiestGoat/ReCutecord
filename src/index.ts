@@ -1,14 +1,13 @@
-import { Injector, Logger, types, webpack } from "replugged";
+import { Injector, Logger, types } from "replugged";
 import { type Message, MsgAuthor } from "./types";
-import { cfg, watchConf } from "./components/common";
+import { watchConf } from "./components/common";
 import { MenuGroupUtil, MenuItemChannel, MenuItemUser } from "./ctxMenu";
 import { cleanMsgNotifCache, msgNotifLogic } from "./chatStore";
 
 const { ContextMenuTypes, ApplicationCommandOptionType } = types;
-const { getByProps } = webpack;
 
 const inject = new Injector();
-const logger = Logger.plugin("Cutecord");
+const _logger = Logger.plugin("Cutecord");
 
 // 5 mins
 const FUNNY_BUSINESS_FREQUENCY = 5 * 1000 * 60;
@@ -50,29 +49,6 @@ export function start(): void {
       });
     },
   );
-
-  const mentionedMod = getByProps<{
-    isRawMessageMentioned: (e: { rawMessage: Message }) => boolean;
-    isMentioned: () => boolean;
-    default: (e: { message: Message }) => boolean;
-  }>("isRawMessageMentioned");
-
-  if (mentionedMod) {
-    inject.after(mentionedMod, "isRawMessageMentioned", (props, res) => {
-      if (!cfg.get("pingOnNotif")) {
-        return res;
-      }
-      return msgNotifLogic(props[0].rawMessage) || res;
-    });
-    inject.instead(mentionedMod, "default", (props, og) => {
-      if (!cfg.get("pingOnNotif")) {
-        return og(...props);
-      }
-      return msgNotifLogic(props[0].message) || og(...props);
-    });
-  } else {
-    logger.error("Mention mod not found");
-  }
 
   inject.utils.registerSlashCommand({
     name: "listen",
