@@ -285,11 +285,6 @@ export function msgNotifLogic(msg: Message): boolean {
 
   const shouldNotify = rawMsgNotifLogic(msg);
 
-  if (cfg.get("pingOnNotif")) {
-    // I think the mentioned module got yoinked... This is the next best thing <3
-    msg.mentioned = true;
-  }
-
   notifCache.set(msg.id, {
     createdAt: Date.now(),
     shouldNotify,

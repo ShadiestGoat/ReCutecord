@@ -1,13 +1,14 @@
-import { Injector, Logger, types } from "replugged";
+import { Injector, Logger, types, webpack } from "replugged";
 import { type Message, MsgAuthor } from "./types";
-import { watchConf } from "./components/common";
+import { cfg, watchConf } from "./components/common";
 import { MenuGroupUtil, MenuItemChannel, MenuItemUser } from "./ctxMenu";
 import { cleanMsgNotifCache, msgNotifLogic } from "./chatStore";
 
 const { ContextMenuTypes, ApplicationCommandOptionType } = types;
+const { getFunctionKeyBySource, getBySource } = webpack
 
 const inject = new Injector();
-const _logger = Logger.plugin("Cutecord");
+const logger = Logger.plugin("Cutecord");
 
 // 5 mins
 const FUNNY_BUSINESS_FREQUENCY = 5 * 1000 * 60;
@@ -23,6 +24,40 @@ function doFunnyBusiness(): void {
   cleanMsgNotifCache();
 
   setTimeout(doFunnyBusiness, FUNNY_BUSINESS_FREQUENCY);
+}
+
+function loadMentionMod(): void {
+  const mod = getBySource<{
+    isRawMessageMentioned: (e: { rawMessage: Message }) => boolean
+    isMentioned: () => boolean;
+    default: (e: { message: Message }) => boolean;
+  }>(/\{userId:\w+,channelId:\w+,mentionEveryone:\w+,mentionUsers:\w+,mentionRoles:\w+,suppressEveryone:.+?,suppressRoles.+?\}/)
+
+  if (!mod) {
+    logger.error("Mention mod not found");
+    return
+  }
+
+  const fRawIsMentioned = getFunctionKeyBySource(mod, "rawMessage") as "isRawMessageMentioned" | undefined
+  const fDefault = getFunctionKeyBySource(mod, "message") as "default" | undefined
+
+  if (!fDefault || !fRawIsMentioned) {
+    logger.error(`Mention mod - failed to find the 2 funcs: default: '${fDefault}', raw: '${fRawIsMentioned}'`);
+    return
+  }
+
+  inject.after(mod, fRawIsMentioned, (props, res) => {
+    if (!cfg.get("pingOnNotif")) {
+      return res;
+    }
+    return msgNotifLogic(props[0].rawMessage) || res;
+  });
+  inject.instead(mod, fDefault, (props, og) => {
+    if (!cfg.get("pingOnNotif")) {
+      return og(...props);
+    }
+    return msgNotifLogic(props[0].message) || og(...props);
+  });
 }
 
 export function start(): void {
@@ -49,6 +84,8 @@ export function start(): void {
       });
     },
   );
+
+  loadMentionMod()
 
   inject.utils.registerSlashCommand({
     name: "listen",
