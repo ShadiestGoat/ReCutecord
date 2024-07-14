@@ -1,6 +1,6 @@
 {
   "name": "re-cutecord",
-  "version": "3.2.5",
+  "version": "3.2.6",
   "description": "A plugin template",
   "engines": {
     "node": ">=18.0.0",
