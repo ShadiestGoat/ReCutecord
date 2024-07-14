@@ -5,7 +5,7 @@ import { MenuGroupUtil, MenuItemChannel, MenuItemUser } from "./ctxMenu";
 import { cleanMsgNotifCache, msgNotifLogic } from "./chatStore";
 
 const { ContextMenuTypes, ApplicationCommandOptionType } = types;
-const { getFunctionKeyBySource, getBySource } = webpack
+const { getFunctionKeyBySource, getBySource } = webpack;
 
 const inject = new Injector();
 const logger = Logger.plugin("Cutecord");
@@ -28,22 +28,28 @@ function doFunnyBusiness(): void {
 
 function loadMentionMod(): void {
   const mod = getBySource<{
-    isRawMessageMentioned: (e: { rawMessage: Message }) => boolean
+    isRawMessageMentioned: (e: { rawMessage: Message }) => boolean;
     isMentioned: () => boolean;
     default: (e: { message: Message }) => boolean;
-  }>(/\{userId:\w+,channelId:\w+,mentionEveryone:\w+,mentionUsers:\w+,mentionRoles:\w+,suppressEveryone:.+?,suppressRoles.+?\}/)
+  }>(
+    /\{userId:\w+,channelId:\w+,mentionEveryone:\w+,mentionUsers:\w+,mentionRoles:\w+,suppressEveryone:.+?,suppressRoles.+?\}/,
+  );
 
   if (!mod) {
     logger.error("Mention mod not found");
-    return
+    return;
   }
 
-  const fRawIsMentioned = getFunctionKeyBySource(mod, "rawMessage") as "isRawMessageMentioned" | undefined
-  const fDefault = getFunctionKeyBySource(mod, "message") as "default" | undefined
+  const fRawIsMentioned = getFunctionKeyBySource(mod, "rawMessage") as
+    | "isRawMessageMentioned"
+    | undefined;
+  const fDefault = getFunctionKeyBySource(mod, "message") as "default" | undefined;
 
   if (!fDefault || !fRawIsMentioned) {
-    logger.error(`Mention mod - failed to find the 2 funcs: default: '${fDefault}', raw: '${fRawIsMentioned}'`);
-    return
+    logger.error(
+      `Mention mod - failed to find the 2 funcs: default: '${fDefault}', raw: '${fRawIsMentioned}'`,
+    );
+    return;
   }
 
   inject.after(mod, fRawIsMentioned, (props, res) => {
@@ -85,7 +91,7 @@ export function start(): void {
     },
   );
 
-  loadMentionMod()
+  loadMentionMod();
 
   inject.utils.registerSlashCommand({
     name: "listen",
