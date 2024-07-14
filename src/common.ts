@@ -22,7 +22,16 @@ const statusMod = getByProps<{ getStatus: (id: string) => string }, "getStatus" 
 ])!;
 
 export function getStatus(): keyof typeof Status {
-  return statusMod.getStatus(common.users.getCurrentUser().id);
+  const user = common.users.getCurrentUser();
+
+  // At initialization this *can* be undefined so...
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (!user) {
+    // Default to DND just in case
+    return Status.DND;
+  }
+
+  return statusMod.getStatus(user.id);
 }
 
 export const callStore = getByStoreName<CallStore>("CallStore")!;
