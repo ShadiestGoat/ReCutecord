@@ -160,7 +160,7 @@ function OpenPlusEditItems({
         💾
       </Button>
       {onCancel ? (
-        <Button onClick={onCancel} color={Button.Colors.YELLOW}>
+        <Button onClick={onCancel} color={Button.Colors.RED}>
           X
         </Button>
       ) : (
