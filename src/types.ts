@@ -36,6 +36,7 @@ interface MessageBase {
    * List of user ids
    */
   mentions: string[];
+  type: number;
 }
 
 export type RefMessage = MessageBase & {
