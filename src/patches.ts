@@ -14,14 +14,14 @@ export default [
       },
       // Always enable sound - we know for sure that we're gonna show notifications :3
       {
-        match: /;let ([A-Za-z]+?)=.?[a-zA-Z\.]+\.isSoundDisabled\(.+?\)/,
-        replace: ';let $1=true'
+        match: /;let ([A-Za-z]+?)=.?[a-zA-Z.]+\.isSoundDisabled\(.+?\)/,
+        replace: ";let $1=true",
       },
       // Notification logic part 2
       {
         match: /;if\([a-zA-Z]+?&&.+?message3.+?!1;(?=let\{)/,
-        replace: ";"
-      }
+        replace: ";",
+      },
     ],
   },
   {

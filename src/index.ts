@@ -157,7 +157,7 @@ export function stop(): void {
 export function shouldNotify(e: { message: Message }): boolean {
   // Don't notify on call
   if (e.message.type == 3) {
-    return false
+    return false;
   }
 
   return msgNotifLogic(e.message);
