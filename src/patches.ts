@@ -5,13 +5,13 @@ const PLUGIN = `replugged.plugins.plugins.get("eu.shadygoat.cutecord")`;
 export default [
   {
     // &&p.getTextChatNotificationMode()===G.Ypu.ENABLED&&!N.Z.disableNotifications
-    find: /MESSAGE_CREATE:/,
+    find: /"NotificationStore"/,
     replacements: [
       // Initial notif logic
       // if(!T&&!S||d.type===J.uaV.CHANGELOG&&(null==d.changelog_id||E.Z.latestChangelogId()!==d.changelog_id))return!1;
       {
         match: /if(?!.*if.+?CHANGELOG)\(.+?CHANGELOG.+?return!1/,
-        replace: `console.log("test");if (!(${PLUGIN}.exports?.shouldNotify(arguments[0]) ?? false))return!1;`,
+        replace: `if (!(${PLUGIN}.exports?.shouldNotify(arguments[0]) ?? false))return!1;`,
       },
       // Always enable sound - we know for sure that we're gonna show notifications :3
       {
